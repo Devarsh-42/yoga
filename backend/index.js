@@ -2,10 +2,15 @@ const express = require('express');
 const app = express();
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
-const stripe = require('stripe')(process.env.PAYMENT_SECRET);
 const cors = require('cors');
 const port = process.env.PORT || 5000;
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+// razor pay integration:
+const Razorpay = require('razorpay');
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_KEY_SECRET
+});
 // Middleware
 app.use(cors());
 app.use(express.json());
@@ -27,9 +32,8 @@ const verifyJWT = (req, res, next) => {
     })
 }
 
-// MONGO DB ROUTES
-
-const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@music-cons.epjwsxc.mongodb.net/?retryWrites=true&w=majority&appName=music-cons`;
+// MONGO DB ROUTES connection. saved data in .env
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@krushnampriya-yog.31aeypu.mongodb.net/?retryWrites=true&w=majority&appName=krushnampriya-yog`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
@@ -43,14 +47,15 @@ const client = new MongoClient(uri, {
 async function run() {
     try {
         // Connect the client to the server	(optional starting in v4.7)
-        const database = client.db("yoga_master");
+        await client.connect();
+        const database = client.db("krushnampriya-yog");
         const userCollection = database.collection("users");
         const classesCollection = database.collection("classes");
         const cartCollection = database.collection("cart");
         const enrolledCollection = database.collection("enrolled");
         const paymentCollection = database.collection("payments");
         const appliedCollection = database.collection("applied");
-        client.connect();
+        //client.connect();
 
         // Verify admin
         const verifyAdmin = async (req, res, next) => {
@@ -99,6 +104,9 @@ async function run() {
         // GET USER BY ID
         app.get('/users/:id', async (req, res) => {
             const id = req.params.id;
+            if (!ObjectId.isValid(id)) {
+                return res.status(400).send({ message: 'Invalid ID format' });
+            }
             const query = { _id: new ObjectId(id) };
             const user = await userCollection.findOne(query);
             res.send(user);
@@ -267,51 +275,146 @@ async function run() {
             res.send(result);
         })
         // PAYMENT ROUTES
-        app.post('/create-payment-intent', verifyJWT, async (req, res) => {
-            const { price } = req.body;
-            const amount = parseInt(price) * 100;
-            const paymentIntent = await stripe.paymentIntents.create({
-                amount: amount,
-                currency: 'usd',
-                payment_method_types: ['card']
-            });
-            res.send({
-                clientSecret: paymentIntent.client_secret
-            });
-        })
+        // app.post('/create-payment-intent', verifyJWT, async (req, res) => {
+        //     const { price } = req.body;
+        //     const amount = parseInt(price) * 100;
+        //     const paymentIntent = await stripe.paymentIntents.create({
+        //         amount: amount,
+        //         currency: 'usd',
+        //         payment_method_types: ['card']
+        //     });
+        //     res.send({
+        //         clientSecret: paymentIntent.client_secret
+        //     });
+        // })
+        // Replace this endpoint
+    app.post('/create-payment-intent', verifyJWT, async (req, res) => {
+    const { price } = req.body;
+    const amount = parseInt(price);
+    
+    try {
+        const options = {
+            amount: amount,      // amount in smallest currency unit (paise for INR)
+            currency: "INR",     // or your preferred currency
+            receipt: "order_rcptid_" + Date.now(),
+            payment_capture: 1   // auto capture
+        };
+        
+        const order = await razorpay.orders.create(options);
+        
+        res.send({
+            orderId: order.id,
+            amount: order.amount,
+            currency: order.currency
+        });
+    } catch (error) {
+        console.error("Razorpay order creation error:", error);
+        res.status(500).send({ error: true, message: "Payment initialization failed" });
+    }
+});
+        // // POST PAYMENT INFO 
+        // app.post('/payment-info', verifyJWT, async (req, res) => {
+        //     const paymentInfo = req.body;
+        //     const classesId = paymentInfo.classesId;
+        //     const userEmail = paymentInfo.userEmail;
+        //     const singleClassId = req.query.classId;
+        //     let query;
+        //     // const query = { classId: { $in: classesId } };
+        //     if (singleClassId) {
+        //         query = { classId: singleClassId, userMail: userEmail };
+        //     } else {
+        //         query = { classId: { $in: classesId } };
+        //     }
+        //     const classesQuery = { _id: { $in: classesId.map(id => new ObjectId(id)) } }
+        //     const classes = await classesCollection.find(classesQuery).toArray();
+        //     const newEnrolledData = {
+        //         userEmail: userEmail,
+        //         classesId: classesId.map(id => new ObjectId(id)),
+        //         transactionId: paymentInfo.transactionId,
+        //     }
+        //     const updatedDoc = {
+        //         $set: {
+        //             totalEnrolled: classes.reduce((total, current) => total + current.totalEnrolled, 0) + 1 || 0,
+        //             availableSeats: classes.reduce((total, current) => total + current.availableSeats, 0) - 1 || 0,
+        //         }
+        //     }
+        //     // const updatedInstructor = await userCollection.find()
+        //     const updatedResult = await classesCollection.updateMany(classesQuery, updatedDoc, { upsert: true });
+        //     const enrolledResult = await enrolledCollection.insertOne(newEnrolledData);
+        //     const deletedResult = await cartCollection.deleteMany(query);
+        //     const paymentResult = await paymentCollection.insertOne(paymentInfo);
+        //     res.send({ paymentResult, deletedResult, enrolledResult, updatedResult });
+        // })
         // POST PAYMENT INFO 
-        app.post('/payment-info', verifyJWT, async (req, res) => {
-            const paymentInfo = req.body;
-            const classesId = paymentInfo.classesId;
-            const userEmail = paymentInfo.userEmail;
-            const singleClassId = req.query.classId;
-            let query;
-            // const query = { classId: { $in: classesId } };
-            if (singleClassId) {
-                query = { classId: singleClassId, userMail: userEmail };
-            } else {
-                query = { classId: { $in: classesId } };
-            }
-            const classesQuery = { _id: { $in: classesId.map(id => new ObjectId(id)) } }
-            const classes = await classesCollection.find(classesQuery).toArray();
-            const newEnrolledData = {
-                userEmail: userEmail,
-                classesId: classesId.map(id => new ObjectId(id)),
-                transactionId: paymentInfo.transactionId,
-            }
-            const updatedDoc = {
-                $set: {
-                    totalEnrolled: classes.reduce((total, current) => total + current.totalEnrolled, 0) + 1 || 0,
-                    availableSeats: classes.reduce((total, current) => total + current.availableSeats, 0) - 1 || 0,
-                }
-            }
-            // const updatedInstructor = await userCollection.find()
-            const updatedResult = await classesCollection.updateMany(classesQuery, updatedDoc, { upsert: true });
-            const enrolledResult = await enrolledCollection.insertOne(newEnrolledData);
-            const deletedResult = await cartCollection.deleteMany(query);
-            const paymentResult = await paymentCollection.insertOne(paymentInfo);
-            res.send({ paymentResult, deletedResult, enrolledResult, updatedResult });
-        })
+app.post('/payment-info', verifyJWT, async (req, res) => {
+    const paymentInfo = req.body;
+    
+    // Update these fields to match Razorpay's response structure
+    // Razorpay uses different field names for the transaction details
+    const classesId = paymentInfo.classesId;
+    const userEmail = paymentInfo.userEmail;
+    const singleClassId = req.query.classId;
+    
+    // Store Razorpay-specific payment details
+    const razorpayPaymentInfo = {
+        ...paymentInfo,
+        // Rename transactionId to match Razorpay's payment_id
+        transactionId: paymentInfo.razorpay_payment_id,
+        // Add other Razorpay-specific fields
+        razorpay_order_id: paymentInfo.razorpay_order_id,
+        razorpay_signature: paymentInfo.razorpay_signature,
+        // Keep your existing fields
+        userEmail: paymentInfo.userEmail,
+        classesId: paymentInfo.classesId,
+        price: paymentInfo.price,
+        date: paymentInfo.date || new Date()
+    };
+    
+    let query;
+    if (singleClassId) {
+        query = { classId: singleClassId, userMail: userEmail };
+    } else {
+        query = { classId: { $in: classesId } };
+    }
+    
+    const classesQuery = { _id: { $in: classesId.map(id => new ObjectId(id)) } }
+    const classes = await classesCollection.find(classesQuery).toArray();
+    
+    const newEnrolledData = {
+        userEmail: userEmail,
+        classesId: classesId.map(id => new ObjectId(id)),
+        transactionId: razorpayPaymentInfo.transactionId,
+    }
+    
+    const updatedDoc = {
+        $set: {
+            totalEnrolled: classes.reduce((total, current) => total + (current.totalEnrolled || 0), 0) + 1,
+            availableSeats: classes.reduce((total, current) => total + current.availableSeats, 0) - 1 || 0,
+        }
+    }
+    
+    try {
+        const updatedResult = await classesCollection.updateMany(classesQuery, updatedDoc, { upsert: true });
+        const enrolledResult = await enrolledCollection.insertOne(newEnrolledData);
+        const deletedResult = await cartCollection.deleteMany(query);
+        const paymentResult = await paymentCollection.insertOne(razorpayPaymentInfo);
+        
+        res.send({ 
+            success: true,
+            paymentResult, 
+            deletedResult, 
+            enrolledResult, 
+            updatedResult 
+        });
+    } catch (error) {
+        console.error("Payment processing error:", error);
+        res.status(500).send({ 
+            success: false, 
+            message: "Failed to process payment information",
+            error: error.message
+        });
+    }
+});
 
 
         app.get('/payment-history/:email', async (req, res) => {
@@ -473,12 +576,12 @@ run().catch(console.dir);
 
 
 app.get('/', (req, res) => {
-    res.send('Yoga Master Server is running!');
+    res.send('Welcome to Krushnampriya yog ,its just backend server :)');
 })
 
 
 // Listen
 app.listen(port, () => {
-    console.log(`SERVER IS RUNNING ON PORT ${port}`);
+    console.log(`Server is running on port  ${port}`);
 })
 
