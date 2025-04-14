@@ -1,17 +1,23 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+import { getAnalytics } from "firebase/analytics";
+import { getAuth } from "firebase/auth"; 
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyCZfbxqsit7um5co-FHuvWKX6aO5ARMb-I",
-  authDomain: "music-cons.firebaseapp.com",
-  projectId: "music-cons",
-  storageBucket: "music-cons.appspot.com",
-  messagingSenderId: "224145904923",
-  appId: "1:224145904923:web:af37627e05613beccf2fbe"
+  apiKey: "AIzaSyCQl363jCqlxozZXmm68Kj72X7MFEgcO_o",
+  authDomain: "krushnampriya-9dc3d.firebaseapp.com",
+  projectId: "krushnampriya-9dc3d",
+  storageBucket: "krushnampriya-9dc3d.firebasestorage.app",
+  messagingSenderId: "947151703239",
+  appId: "1:947151703239:web:f0a1555e8d6fe8474a82e2",
+  measurementId: "G-YHFWN2HN75"
 };
 
 // Initialize Firebase
-export const app = initializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+const auth = getAuth(app); 
+
+// Export what you need
+export { app, auth, analytics };
