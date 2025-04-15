@@ -1,0 +1,80 @@
+[
+    {
+      "name": "Micro Point Therapy",
+      "description": "A therapeutic approach using micro-needling and targeted pressure points to alleviate pain and enhance healing.",
+      "price": 500,
+      "duration": 60,
+      "image": "https://i.pinimg.com/736x/41/c3/c5/41c3c5d9ef0d69d377d607feffbb854b.jpg"
+    },
+    {
+      "name": "Acupressure Point Therapy",
+      "description": "A method of applying pressure to specific points on the body to balance energy flow and relieve tension.",
+      "price": 350,
+      "duration": 50,
+      "image": "https://i.pinimg.com/474x/2c/d5/68/2cd568e8fdf9aa3ca9365423ccf01cd5.jpg"
+    },
+    {
+      "name": "Auricular Therapy",
+      "description": "Therapy that focuses on the ear points to treat physical and emotional issues through stimulation.",
+      "price": 450,
+      "duration": 45,
+      "image": "https://i.pinimg.com/736x/1d/c9/59/1dc959cc7bb5dd7f0a7012fc4beae776.jpg"
+    },
+    {
+      "name": "Colour Therapy",
+      "description": "A form of therapy that uses colors to enhance physical and emotional well-being.",
+      "price": 350,
+      "duration": 50,
+      "image": "https://i.pinimg.com/736x/1c/74/87/1c74875fd307fc325d82a2150fa90374.jpg"
+    },
+    {
+      "name": "Seeds Therapy",
+      "description": "Utilizing the healing properties of seeds applied at specific pressure points to balance energy and relieve ailments.",
+      "price": 350,
+      "duration": 50,
+      "image": "https://i.pinimg.com/736x/30/cd/9c/30cd9ce094d3b83e22cd8d02460bc29c.jpg"
+    },
+    {
+      "name": "Jingle Therapy",
+      "description": "A unique therapy that combines sound therapy and pressure point stimulation to relax the body and mind.",
+      "price": 650,
+      "duration": 60,
+      "image": "https://i.pinimg.com/474x/4e/17/bd/4e17bd2e80380747c81cb259d67befb9.jpg"
+    },
+    {
+      "name": "Sound Healing Therapy",
+      "description": "Using vibrational sound frequencies to promote healing and relaxation, this therapy targets stress relief and emotional healing.",
+      "price": 2000,
+      "duration": 90,
+      "image": "https://i.pinimg.com/474x/03/12/d2/0312d231bc111e091c67ded601090d00.jpg"
+    },
+    {
+      "name": "Reiki Therapy",
+      "description": "A form of energy healing that involves the therapist transferring universal energy to the client to promote healing and balance.",
+      "price": 250,
+      "duration": 60,
+      "image": "https://i.pinimg.com/474x/80/c6/61/80c6616ec6f612ceb1d12e4364570c31.jpg"
+    },
+    {
+      "name": "Deep Meditation",
+      "description": "A profound form of meditation aimed at achieving a deep state of mental clarity, relaxation, and spiritual insight.",
+      "price": 3000,
+      "duration": 120,
+      "image": "https://i.pinimg.com/474x/88/8b/13/888b1313aac77baf12dec4c857339e60.jpg"
+    },
+    {
+      "name": "Meditation Therapy (Basic)",
+      "description": "A beginner-friendly meditation session to help clients relax, relieve stress, and improve mental focus.",
+      "price": 2500,
+      "duration": 60,
+      "image": "https://i.pinimg.com/474x/d6/01/fc/d601fcd0dc4ddfa4a5df02e69727d9ba.jpg"
+    },
+    {
+      "name": "Water Meditation",
+      "description": "A therapy combining the calming effects of water and guided meditation to promote relaxation and clarity of mind.",
+      "price": 3200,
+      "duration": 75,
+      "image": "https://i.pinimg.com/736x/b1/d6/cd/b1d6cd30308110168b1f05a837a91a38.jpg"
+    }
+  ]
+  

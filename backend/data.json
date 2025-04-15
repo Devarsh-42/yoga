@@ -2,10 +2,19 @@
     "users": [
         {
             "_id": "65df65cbb547a06bbad2f018",
-            "name": "Chandani Adesara",
-            "email": "krushnampriyayog@gmail.com",
+            "name": "Krushnampriya",
+            "email": "krushnampriya@gmail.com",
             "photoUrl": "https://lh3.googleusercontent.com/a/ACg8ocJbHdtBLXUAfOnav07QIzT1pCJbLh…",
             "role": "admin",
+            "gender": "Is not specified",
+            "address": "soni bajar , rajkot",
+            "phone": "9173207489"
+        },
+        {
+            "name": "Chandni Adesara",
+            "email": "adesarachandnikalpesh@gmail.com",
+            "photoUrl": "https://lh3.googleusercontent.com/a/ACg8ocJbHdtBLXUAfOnav07QIzT1pCJbLh…",
+            "role": "instructor",
             "gender": "Is not specified",
             "address": "soni bajar , rajkot",
             "phone": "9173207489"
@@ -57,7 +66,7 @@
             "transactionId": "pi_3OpBXRCmx8hfkpYc0Aoc4Hqx",
             "paymentMethod": "pm_1OpBYECmx8hfkpYcaT84EYMN",
             "amount": 50,
-            "currency": "usd",
+            "currency": "INR",
             "paymentStatus": "succeeded",
             "userName": "Priyal",
             "userEmail": "adesarapriyal544@gmail.com",
