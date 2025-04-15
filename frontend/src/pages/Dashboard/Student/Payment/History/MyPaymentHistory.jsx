@@ -140,7 +140,12 @@ const MyPaymentHistory = () => {
             .catch(err => console.log(err));
     }, [currentUser.email, axiosFetch]);
 
-    const totalPaidAmount = payments.reduce((acc, curr) => acc + curr.amount, 0);
+    // Convert amount from paise to rupees and use price field as fallback
+    const totalPaidAmount = payments.reduce((acc, curr) => {
+        // Handle both Razorpay's amount (in paise) and your stored price field
+        const amount = curr.amount ? curr.amount / 100 : curr.price;
+        return acc + amount;
+    }, 0);
     
     // Pagination logic
     const totalPages = Math.ceil(payments.length / itemsPerPage);
@@ -186,13 +191,13 @@ const MyPaymentHistory = () => {
                 <div className="bg-gradient-to-r from-orange-400 to-orange-500 rounded-xl p-6 text-white shadow-lg">
                     <div className="flex items-center">
                         <div className="bg-white/20 p-3 rounded-full">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-currency-rupee" viewBox="0 0 16 16">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-currency-rupee" viewBox="0 0 16 16">
                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 3.06h2.726c1.22 0 2.12.575 2.325 1.724H4v1.051h5.051C8.855 7.001 8 7.558 6.788 7.558H4v1.317L8.437 14h2.11L6.095 8.884h.855c2.316-.018 3.465-1.476 3.688-3.049H12V4.784h-1.345c-.08-.778-.357-1.335-.793-1.732H12V2H4z"/>
                              </svg>
                         </div>
                         <div className="ml-4">
                             <p className="text-white/80 text-sm font-medium">Total Amount Paid</p>
-                            <h3 className="text-2xl font-bold">₹{totalPaidAmount}</h3>
+                            <h3 className="text-2xl font-bold">₹{totalPaidAmount.toFixed(2)}</h3>
                         </div>
                     </div>
                 </div>
@@ -204,6 +209,7 @@ const MyPaymentHistory = () => {
                     <thead className="bg-gray-50">
                         <tr>
                             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">#</th>
+                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Transaction ID</th>
                             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
                             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Items</th>
                             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date & Time</th>
@@ -216,8 +222,13 @@ const MyPaymentHistory = () => {
                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                         {(page - 1) * itemsPerPage + idx + 1}
                                     </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 max-w-xs truncate">
+                                        {payment.razorpay_payment_id || payment.transactionId}
+                                    </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
-                                        <span className="text-teal-600">₹{payment.amount}</span>
+                                        <span className="text-teal-600">
+                                            ₹{payment.amount ? (payment.amount / 100).toFixed(2) : payment.price}
+                                        </span>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                         {payment.classesId.length}
@@ -229,7 +240,7 @@ const MyPaymentHistory = () => {
                             ))
                         ) : (
                             <tr>
-                                <td colSpan="4" className="px-6 py-4 text-center text-sm text-gray-500">
+                                <td colSpan="5" className="px-6 py-4 text-center text-sm text-gray-500">
                                     No payment records found
                                 </td>
                             </tr>

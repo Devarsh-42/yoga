@@ -5,6 +5,7 @@ require('dotenv').config();
 const cors = require('cors');
 const port = process.env.PORT || 5000;
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const crypto = require('crypto');
 // razor pay integration:
 const Razorpay = require('razorpay');
 const razorpay = new Razorpay({
@@ -14,6 +15,15 @@ const razorpay = new Razorpay({
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+// solving cors related issue
+// Add this to your server.js or index.js
+
+app.use(cors({
+  origin: 'http://localhost:5173', // Your frontend URL
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true
+}));
 
 // Routes
 // SET TOKEN .
@@ -420,30 +430,20 @@ app.delete('/herbal_products/:id', verifyJWT, verifyAdmin, async (req, res) => {
             const result = await cartCollection.deleteOne(query);
             res.send(result);
         })
-        // PAYMENT ROUTES
-        // app.post('/create-payment-intent', verifyJWT, async (req, res) => {
-        //     const { price } = req.body;
-        //     const amount = parseInt(price) * 100;
-        //     const paymentIntent = await stripe.paymentIntents.create({
-        //         amount: amount,
-        //         currency: 'usd',
-        //         payment_method_types: ['card']
-        //     });
-        //     res.send({
-        //         clientSecret: paymentIntent.client_secret
-        //     });
-        // })
-        // Replace this endpoint
+   //  PAYMENT ROUTES
+
     app.post('/create-payment-intent', verifyJWT, async (req, res) => {
-    const { price } = req.body;
-    const amount = parseInt(price);
-    
     try {
+        const { price } = req.body;
+        const amount = parseInt(price);
+        
+        // Razorpay expects amount in smallest currency unit (paise for INR)
+        // So multiply by 100 if your price is in rupees
         const options = {
-            amount: amount,      // amount in smallest currency unit (paise for INR)
-            currency: "INR",     // or your preferred currency
+            amount: amount * 100,  // amount in the smallest currency unit
+            currency: "INR",       // or your preferred currency
             receipt: "order_rcptid_" + Date.now(),
-            payment_capture: 1   // auto capture
+            payment_capture: 1     // auto capture
         };
         
         const order = await razorpay.orders.create(options);
@@ -454,44 +454,11 @@ app.delete('/herbal_products/:id', verifyJWT, verifyAdmin, async (req, res) => {
             currency: order.currency
         });
     } catch (error) {
-        console.error("Razorpay order creation error:", error);
-        res.status(500).send({ error: true, message: "Payment initialization failed" });
+        console.error('Error creating Razorpay order:', error);
+        res.status(500).send({ error: 'Failed to create payment order' });
     }
 });
-        // // POST PAYMENT INFO 
-        // app.post('/payment-info', verifyJWT, async (req, res) => {
-        //     const paymentInfo = req.body;
-        //     const classesId = paymentInfo.classesId;
-        //     const userEmail = paymentInfo.userEmail;
-        //     const singleClassId = req.query.classId;
-        //     let query;
-        //     // const query = { classId: { $in: classesId } };
-        //     if (singleClassId) {
-        //         query = { classId: singleClassId, userMail: userEmail };
-        //     } else {
-        //         query = { classId: { $in: classesId } };
-        //     }
-        //     const classesQuery = { _id: { $in: classesId.map(id => new ObjectId(id)) } }
-        //     const classes = await classesCollection.find(classesQuery).toArray();
-        //     const newEnrolledData = {
-        //         userEmail: userEmail,
-        //         classesId: classesId.map(id => new ObjectId(id)),
-        //         transactionId: paymentInfo.transactionId,
-        //     }
-        //     const updatedDoc = {
-        //         $set: {
-        //             totalEnrolled: classes.reduce((total, current) => total + current.totalEnrolled, 0) + 1 || 0,
-        //             availableSeats: classes.reduce((total, current) => total + current.availableSeats, 0) - 1 || 0,
-        //         }
-        //     }
-        //     // const updatedInstructor = await userCollection.find()
-        //     const updatedResult = await classesCollection.updateMany(classesQuery, updatedDoc, { upsert: true });
-        //     const enrolledResult = await enrolledCollection.insertOne(newEnrolledData);
-        //     const deletedResult = await cartCollection.deleteMany(query);
-        //     const paymentResult = await paymentCollection.insertOne(paymentInfo);
-        //     res.send({ paymentResult, deletedResult, enrolledResult, updatedResult });
-        // })
-        // POST PAYMENT INFO 
+
 app.post('/payment-info', verifyJWT, async (req, res) => {
     const paymentInfo = req.body;
     
@@ -557,6 +524,86 @@ app.post('/payment-info', verifyJWT, async (req, res) => {
         res.status(500).send({ 
             success: false, 
             message: "Failed to process payment information",
+            error: error.message
+        });
+    }
+});
+app.post('/verify-payment', verifyJWT, async (req, res) => {
+    try {
+        const { paymentId, orderId, signature, cartItm } = req.body;
+        const userEmail = req.user.email; // Assuming verifyJWT middleware sets req.user
+        
+        // Verify Razorpay signature
+        const generatedSignature = crypto
+            .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
+            .update(orderId + "|" + paymentId)
+            .digest('hex');
+            
+        if (generatedSignature !== signature) {
+            return res.status(400).send({
+                success: false,
+                message: 'Invalid payment signature'
+            });
+        }
+        
+        // Fetch payment details from Razorpay to get amount and other details
+        const payment = await razorpay.payments.fetch(paymentId);
+        
+        // Prepare payment info for database
+        const paymentInfo = {
+            userEmail: userEmail,
+            classesId: Array.isArray(cartItm) ? cartItm : [cartItm],
+            razorpay_payment_id: paymentId,
+            razorpay_order_id: orderId,
+            razorpay_signature: signature,
+            price: payment.amount / 100, // Convert from paise to rupees
+            date: new Date(),
+            status: payment.status
+        };
+        
+        // Call your existing payment-info endpoint to process the payment
+        const classesQuery = { _id: { $in: paymentInfo.classesId.map(id => new ObjectId(id)) } };
+        const classes = await classesCollection.find(classesQuery).toArray();
+        
+        const newEnrolledData = {
+            userEmail: paymentInfo.userEmail,
+            classesId: paymentInfo.classesId.map(id => new ObjectId(id)),
+            transactionId: paymentInfo.razorpay_payment_id,
+        };
+        
+        const updatedDoc = {
+            $set: {
+                totalEnrolled: classes.reduce((total, current) => total + (current.totalEnrolled || 0), 0) + 1,
+                availableSeats: classes.reduce((total, current) => total + current.availableSeats, 0) - 1 || 0,
+            }
+        };
+        
+        let query;
+        if (paymentInfo.classesId.length === 1) {
+            query = { classId: paymentInfo.classesId[0], userMail: paymentInfo.userEmail };
+        } else {
+            query = { classId: { $in: paymentInfo.classesId } };
+        }
+        
+        // Process database operations
+        const updatedResult = await classesCollection.updateMany(classesQuery, updatedDoc, { upsert: true });
+        const enrolledResult = await enrolledCollection.insertOne(newEnrolledData);
+        const deletedResult = await cartCollection.deleteMany(query);
+        const paymentResult = await paymentCollection.insertOne(paymentInfo);
+        
+        res.send({ 
+            success: true,
+            paymentResult, 
+            deletedResult, 
+            enrolledResult, 
+            updatedResult 
+        });
+        
+    } catch (error) {
+        console.error("Payment verification error:", error);
+        res.status(500).send({ 
+            success: false, 
+            message: "Failed to verify payment",
             error: error.message
         });
     }

@@ -20,6 +20,7 @@
     "alpinejs": "^3.12.2",
     "aos": "^2.3.4",
     "axios": "^1.4.0",
+    "cors": "^2.8.5",
     "create-file-list": "^1.1.0",
     "firebase": "^9.23.0",
     "framer-motion": "^10.18.0",
