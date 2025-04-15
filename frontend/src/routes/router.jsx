@@ -29,8 +29,10 @@ import UpdateClass from "../pages/Dashboard/Instructors/UpdateClass";
 import SingleClass from "../pages/classes/SingleClass";
 import About from "../pages/about/about";
 import HerbalStore from "../pages/herbalstore/HerbalStore";
-import Therapy from "../pages/therapy/therapy";
+import Therapy from "../pages/therapy/Therapy";
 import ContactUs from "../pages/contact/contactUs";
+import SingleTherapy from "../pages/therapy/SingleTherapy"
+import SingleHerbal from "../pages/herbalstore/SingleHerbal";
 
 export const router = createBrowserRouter([
     {
@@ -74,7 +76,18 @@ export const router = createBrowserRouter([
                 path: "class/:id",
                 element: <SingleClass/>,
                 loader: ({ params }) => fetch(`http://localhost:5000/class/${params.id}`),
-            }
+            },
+            {
+                path: "therapies/:id",
+                element: <SingleTherapy />, // create this component to show therapy details
+                loader: ({ params }) => fetch(`http://localhost:5000/therapies/${params.id}`)},
+                {
+                    path: "herbal_products/:id",
+                    element: <SingleHerbal />,
+                    loader: ({ params }) =>
+                      fetch(`http://localhost:5000/herbal_products/${params.id}`), // 👈 loader
+                  }
+              
         ]
     },
     {

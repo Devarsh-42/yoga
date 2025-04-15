@@ -42,7 +42,7 @@ const HerbalStore = () => {
                 <span className="text-green-600 font-bold text-lg">${item.price}</span>
                 <span className="text-sm text-gray-600 dark:text-gray-400">{item.quantity} in stock</span>
               </div>
-              <Link to={`/herbal/${item._id}`} className="block">
+              <Link to={`/herbal_products/${item._id}`} className="block">
                 <button className="w-full py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-md transition-colors duration-300">
                   VIEW DETAILS
                 </button>

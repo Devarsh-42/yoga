@@ -56,8 +56,8 @@ async function run() {
         const paymentCollection = database.collection("payments");
         const appliedCollection = database.collection("applied");
         // PHASE2 CHANGES
-        const therapyCollection = database.collection("therapy");
-        const herbalCollection = database.collection("herbal");
+        const therapyCollection = database.collection("therapies");
+        const herbalProductsCollection = database.collection("herbals");
         //client.connect();
 
         // Verify admin
@@ -241,6 +241,149 @@ async function run() {
             const result = await classesCollection.findOne(query);
             res.send(result);
         })
+            // ! THERAPY ROUTES
+
+// GET ALL THERAPIES
+app.get('/therapies', async (req, res) => {
+    try {
+        const result = await therapyCollection.find().toArray();
+        res.send(result);
+    } catch (error) {
+        console.error("Error fetching therapies:", error);
+        res.status(500).send({ error: true, message: "Failed to fetch therapies" });
+    }
+});
+
+// GET THERAPY BY ID
+app.get('/therapies/:id', async (req, res) => {
+    try {
+        const id = req.params.id;
+        if (!ObjectId.isValid(id)) {
+            return res.status(400).send({ message: 'Invalid ID format' });
+        }
+        const query = { _id: new ObjectId(id) };
+        const result = await therapyCollection.findOne(query);
+        res.send(result);
+    } catch (error) {
+        console.error("Error fetching therapy:", error);
+        res.status(500).send({ error: true, message: "Failed to fetch therapy" });
+    }
+});
+
+// ADD NEW THERAPY (for admin)
+app.post('/therapies', verifyJWT, verifyAdmin, async (req, res) => {
+    try {
+        const newTherapy = req.body;
+        const result = await therapyCollection.insertOne(newTherapy);
+        res.send(result);
+    } catch (error) {
+        console.error("Error adding therapy:", error);
+        res.status(500).send({ error: true, message: "Failed to add therapy" });
+    }
+});
+
+// UPDATE THERAPY
+app.put('/therapies/:id', verifyJWT, verifyAdmin, async (req, res) => {
+    try {
+        const id = req.params.id;
+        const updatedTherapy = req.body;
+        const filter = { _id: new ObjectId(id) };
+        const options = { upsert: true };
+        const updateDoc = {
+            $set: updatedTherapy
+        };
+        const result = await therapyCollection.updateOne(filter, updateDoc, options);
+        res.send(result);
+    } catch (error) {
+        console.error("Error updating therapy:", error);
+        res.status(500).send({ error: true, message: "Failed to update therapy" });
+    }
+});
+
+// DELETE THERAPY
+app.delete('/therapies/:id', verifyJWT, verifyAdmin, async (req, res) => {
+    try {
+        const id = req.params.id;
+        const query = { _id: new ObjectId(id) };
+        const result = await therapyCollection.deleteOne(query);
+        res.send(result);
+    } catch (error) {
+        console.error("Error deleting therapy:", error);
+        res.status(500).send({ error: true, message: "Failed to delete therapy" });
+    }
+});
+
+// ! HERBAL PRODUCTS ROUTES
+
+// GET ALL HERBAL PRODUCTS
+app.get('/herbal_products', async (req, res) => {
+    try {
+        const result = await herbalProductsCollection.find().toArray();
+        res.send(result);
+    } catch (error) {
+        console.error("Error fetching herbal products:", error);
+        res.status(500).send({ error: true, message: "Failed to fetch herbal products" });
+    }
+});
+
+// GET HERBAL PRODUCT BY ID
+app.get('/herbal_products/:id', async (req, res) => {
+    try {
+        const id = req.params.id;
+        if (!ObjectId.isValid(id)) {
+            return res.status(400).send({ message: 'Invalid ID format' });
+        }
+        const query = { _id: new ObjectId(id) };
+        const result = await herbalProductsCollection.findOne(query);
+        res.send(result);
+    } catch (error) {
+        console.error("Error fetching herbal product:", error);
+        res.status(500).send({ error: true, message: "Failed to fetch herbal product" });
+    }
+});
+
+// ADD NEW HERBAL PRODUCT (for admin)
+app.post('/herbal_products', verifyJWT, verifyAdmin, async (req, res) => {
+    try {
+        const newProduct = req.body;
+        const result = await herbalProductsCollection.insertOne(newProduct);
+        res.send(result);
+    } catch (error) {
+        console.error("Error adding herbal product:", error);
+        res.status(500).send({ error: true, message: "Failed to add herbal product" });
+    }
+});
+
+// UPDATE HERBAL PRODUCT
+app.put('/herbal_products/:id', verifyJWT, verifyAdmin, async (req, res) => {
+    try {
+        const id = req.params.id;
+        const updatedProduct = req.body;
+        const filter = { _id: new ObjectId(id) };
+        const options = { upsert: true };
+        const updateDoc = {
+            $set: updatedProduct
+        };
+        const result = await herbalProductsCollection.updateOne(filter, updateDoc, options);
+        res.send(result);
+    } catch (error) {
+        console.error("Error updating herbal product:", error);
+        res.status(500).send({ error: true, message: "Failed to update herbal product" });
+    }
+});
+
+// DELETE HERBAL PRODUCT
+app.delete('/herbal_products/:id', verifyJWT, verifyAdmin, async (req, res) => {
+    try {
+        const id = req.params.id;
+        const query = { _id: new ObjectId(id) };
+        const result = await herbalProductsCollection.deleteOne(query);
+        res.send(result);
+    } catch (error) {
+        console.error("Error deleting herbal product:", error);
+        res.status(500).send({ error: true, message: "Failed to delete herbal product" });
+    }
+});
         // ! CART ROUTES
 
         // ADD TO CART
@@ -442,6 +585,15 @@ app.post('/payment-info', verifyJWT, async (req, res) => {
             const result = await classesCollection.find().sort({ totalEnrolled: -1 }).limit(6).toArray();
             res.send(result);
         })
+        app.get('/popular_therapies', async (req, res) => {
+            const result = await therapyCollection.find().sort({ popularity: -1 }).limit(6).toArray();
+            res.send(result);
+        });
+        
+        app.get('/popular_herbal_products', async (req, res) => {
+            const result = await herbalProductsCollection.find().sort({ sales: -1 }).limit(6).toArray();
+            res.send(result);
+        });
 
 
         app.get('/popular-instructors', async (req, res) => {
@@ -493,12 +645,16 @@ app.post('/payment-info', verifyJWT, async (req, res) => {
             const totalEnrolled = (await enrolledCollection.find().toArray()).length;
             // const totalRevenue = await paymentCollection.find().toArray();
             // const totalRevenueAmount = totalRevenue.reduce((total, current) => total + parseInt(current.price), 0);
+            const totalTherapies = (await therapyCollection.find().toArray()).length;
+            const totalHerbalProducts = (await herbalProductsCollection.find().toArray()).length;
             const result = {
                 approvedClasses,
                 pendingClasses,
                 instructors,
                 totalClasses,
                 totalEnrolled,
+                totalTherapies,
+                totalHerbalProducts
                 // totalRevenueAmount
             }
             res.send(result);

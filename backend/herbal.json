@@ -1,0 +1,66 @@
+[
+    {
+      "name": "SlimEase Herbal Blend",
+      "price": 275,
+      "image": "https://in.pinterest.com/pin/902197737834040438/",
+      "description": "A natural blend of fat-burning herbs to support healthy weight loss and boost metabolism.",
+      "quantity": 50
+    },
+    {
+      "name": "BulkRoot Nutritional Tonic",
+      "price": 285,
+      "image": "https://in.pinterest.com/pin/17592254791941902/",
+      "description": "An energizing herbal powder formulated to promote healthy weight gain and improve appetite naturally.",
+      "quantity": 40
+    },
+    {
+      "name": "GlucoCare Herbal Formula",
+      "price": 290,
+      "image": "https://i.pinimg.com/474x/18/92/d2/1892d2700c4f436e7aeebf1d1ebd7bb3.jpg",
+      "description": "Supports balanced blood sugar levels using time-tested Ayurvedic ingredients for diabetes management.",
+      "quantity": 35
+    },
+    {
+      "name": "FollicleFix Hair Herbal Mix",
+      "price": 270,
+      "image": "https://i.pinimg.com/474x/6b/b7/94/6bb7948452d0335958121a31142b0771.jpg",
+      "description": "Combats hair fall and nourishes the scalp with powerful herbs for stronger, healthier hair.",
+      "quantity": 45
+    },
+    {
+      "name": "FlexiRelief Joint Support Powder",
+      "price": 295,
+      "image": "https://i.pinimg.com/474x/ee/a5/c8/eea5c838b0879d1f2c23bc429100964c.jpg",
+      "description": "Relieves knee and joint pain with anti-inflammatory herbs that promote mobility and comfort.",
+      "quantity": 30
+    },
+    {
+      "name": "HeartShield Cholesterol Care Blend",
+      "price": 250,
+      "image": "https://i.pinimg.com/474x/36/27/e2/3627e2cf57db088737bbcda30f315b30.jpg",
+      "description": "Naturally balances cholesterol levels and supports heart health with potent herbal extracts.",
+      "quantity": 40
+    },
+    {
+      "name": "DigestEase Herbal Cleanse",
+      "price": 260,
+      "image": "https://i.pinimg.com/474x/04/3a/4a/043a4a6c4d97c67da38995eb47ae4930.jpg",
+      "description": "Gentle yet effective formula for relieving constipation and promoting digestive wellness.",
+      "quantity": 50
+    },
+    {
+      "name": "DermaGlow Skin Wellness Powder",
+      "price": 280,
+      "image": "https://i.pinimg.com/474x/b9/3e/b3/b93eb356fec023cd65a6234dff24610e.jpg",
+      "description": "Helps treat acne, blemishes, and skin inflammation for clearer, healthier skin from within.",
+      "quantity": 45
+    },
+    {
+      "name": "CalmMind Migraine Support Blend",
+      "price": 300,
+      "image": "https://i.pinimg.com/736x/48/9b/f5/489bf530acccea14751ed7065e80a1ee.jpg",
+      "description": "A soothing herbal blend that calms the nervous system and helps relieve migraine symptoms naturally.",
+      "quantity": 25
+    }
+  ]
+  

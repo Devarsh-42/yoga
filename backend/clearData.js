@@ -16,12 +16,14 @@ async function clearCollections() {
       "classes",
       "cart",
       "enrolled",
-      "payments"
+      "payments",
+      "herbals",
+      "therapies"
     ];
 
     for (const name of collectionsToClear) {
       const result = await db.collection(name).deleteMany({});
-      console.log(`🗑️ Cleared ${result.deletedCount} document(s) from "${name}" collection.`);
+      console.log(`Cleared ${result.deletedCount} document(s) from "${name}" collection.`);
     }
 
     console.log("✅ All specified collections have been cleared.");
