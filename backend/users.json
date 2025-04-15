@@ -24,6 +24,30 @@
       "skills": null
     },
     {
+      
+      "name": "venisha",
+      "email": "venisha1901@gmail.com",
+      "photoUrl": "https://randomuser.me/api/portraits/women/17.jpg",
+      "gender": "female",
+      "address": "West Bengal",
+      "role": "instructor",
+      "phone": "0134567894",
+      "about": "",
+      "skills": null
+    },
+    {
+      
+      "name": "venishaAdmin",
+      "email": "Venisha.005@gmail.com",
+      "photoUrl": "https://randomuser.me/api/portraits/women/17.jpg",
+      "gender": "female",
+      "address": "West Bengal",
+      "role": "admin",
+      "phone": "0134567894",
+      "about": "",
+      "skills": null
+    },
+    {
       "name": "Krushnampriya",
       "email": "krushnampriya@gmail.com",
       "photoUrl": "https://lh3.googleusercontent.com/a/ACg8ocJbHdtBLXUAfOnav07QIzT1pCJbLh…",
