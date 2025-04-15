@@ -55,6 +55,9 @@ async function run() {
         const enrolledCollection = database.collection("enrolled");
         const paymentCollection = database.collection("payments");
         const appliedCollection = database.collection("applied");
+        // PHASE2 CHANGES
+        const therapyCollection = database.collection("therapy");
+        const herbalCollection = database.collection("herbal");
         //client.connect();
 
         // Verify admin

@@ -27,6 +27,10 @@ import PrivetRoute from "./Privet/PrivetRoute";
 import EnrolledClasses from "../pages/Dashboard/Student/Enroll/EnrolledClasses";
 import UpdateClass from "../pages/Dashboard/Instructors/UpdateClass";
 import SingleClass from "../pages/classes/SingleClass";
+import About from "../pages/about/about";
+import HerbalStore from "../pages/herbalstore/HerbalStore";
+import Therapy from "../pages/therapy/therapy";
+import ContactUs from "../pages/contact/contactUs";
 
 export const router = createBrowserRouter([
     {
@@ -47,12 +51,24 @@ export const router = createBrowserRouter([
                 element: <Login />
             },
             {
-                path: "instructors",
-                element: <Instructors />
+                path: "herbalstore",
+                element: <HerbalStore/>
+            },
+            {
+                path: "therapies",
+                element: <Therapy/>
+            },
+            {
+                path: "about",
+                element: <About />
             },
             {
                 path: "classes",
                 element: <Classes />
+            },
+            {
+                path: "contact",
+                element: <ContactUs />
             },
             {
                 path: "class/:id",

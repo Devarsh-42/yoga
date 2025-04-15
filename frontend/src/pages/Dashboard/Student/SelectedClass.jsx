@@ -5,7 +5,6 @@ import { useUser } from '../../../hooks/useUser';
 import moment from 'moment';
 import { Link, useNavigate } from 'react-router-dom';
 import { MdDeleteSweep } from 'react-icons/md';
-import { FiDollarSign } from 'react-icons/fi';
 import { motion } from 'framer-motion';
 import Swal from 'sweetalert2';
 import { Pagination, ThemeProvider, createTheme } from '@mui/material';
@@ -27,10 +26,10 @@ const SelectedClass = () => {
     const theme = createTheme({
         palette: {
             primary: {
-                main: '#ff0000', // Set the primary color
+                main: '#0d9488', // Teal color
             },
             secondary: {
-                main: '#00ff00', // Set the secondary color
+                main: '#14b8a6', // Lighter teal
             },
         },
     });
@@ -38,27 +37,52 @@ const SelectedClass = () => {
     useEffect(() => {
         axiosSecure.get(`/cart/${currentUser?.email}`)
             .then((res) => {
-                setClasses(res.data)
-                setLoading(false)
+                // Add current date if none exists
+                const classesWithDate = res.data.map(item => {
+                    // If the item doesn't have a selected_at timestamp, add the current time
+                    if (!item.selected_at) {
+                        return {
+                            ...item,
+                            selected_at: new Date().toISOString()
+                        };
+                    }
+                    return item;
+                });
+                setClasses(classesWithDate);
+                setLoading(false);
             })
             .catch((err) => {
-                console.log(err)
-                setLoading(false)
-            })
-    }, [currentUser?.email])
+                console.log(err);
+                setLoading(false);
+            });
+    }, [currentUser?.email]);
 
     const handleChange = (event, value) => {
         setPage(value);
     }
+    
     useEffect(() => {
         const lastIndex = page * itemPerPage;
         const firstIndex = lastIndex - itemPerPage;
         const currentItems = classes.slice(firstIndex, lastIndex);
         setPaginatedData(currentItems);
-    }, [page, classes])
+    }, [page, classes]);
+    
     const totalPrice = classes.reduce((acc, item) => acc + parseInt(item.price), 0);
     const totalTax = totalPrice * 0.01;
     const price = totalPrice + totalTax;
+
+    // Function to handle adding a new class to cart
+    const handleAddToCart = (classItem) => {
+        // Add selected_at timestamp when adding to cart
+        const classWithTimestamp = {
+            ...classItem,
+            selected_at: new Date().toISOString()
+        };
+        
+        // Your existing add to cart logic here
+        // ...
+    };
 
     const handlePay = (id) => {
         console.log(id, 'id from pay')
@@ -74,7 +98,7 @@ const SelectedClass = () => {
             text: "You won't be able to revert this!",
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#3085d6',
+            confirmButtonColor: '#0d9488',
             cancelButtonColor: '#d33',
             confirmButtonText: 'Yes, delete it!'
         }).then((result) => {
@@ -96,46 +120,52 @@ const SelectedClass = () => {
         })
         // Handle the delete action here
     };
+    
     if (loading) { // [2
-        return <div className='h-full w-full flex justify-center items-center'><ScaleLoader color="#FF1949" /></div>;
+        return <div className='h-full w-full flex justify-center items-center'><ScaleLoader color="#0d9488" /></div>;
     }
+    
     return (
-        <div>
-            <div className="my-6">
-                <h1 className='text-4xl text-center font-bold'>My <span className='text-secondary'>Selected</span> Class</h1>
+        <div className="bg-white min-h-screen">
+            <div className="my-6 pt-4">
+                <h1 className='text-4xl text-center font-bold'>My <span className='text-teal-600'>Selected</span> Class</h1>
             </div>
-            <div className="h-screen py-8">
+            <div className="py-8">
                 <div className="container mx-auto px-4">
-                    <h1 className="text-2xl font-semibold mb-4">Shopping Cart</h1>
+                    <h1 className="text-2xl font-semibold mb-4 text-gray-700">Shopping Cart</h1>
                     <div className="flex flex-col md:flex-row gap-4">
                         <div className="md:w-3/4">
                             <div className="bg-white rounded-lg shadow-md p-6 mb-4">
                                 <table className="w-full">
                                     <thead>
                                         <tr>
-                                            <th className="text-left font-semibold">#</th>
-                                            <th className="text-left font-semibold">Product</th>
-                                            <th className="text-left font-semibold">Price</th>
-                                            <th className="text-left font-semibold">Date</th>
-                                            <th className="text-left font-semibold">Actions</th>
+                                            <th className="text-left font-semibold text-gray-700">#</th>
+                                            <th className="text-left font-semibold text-gray-700">Product</th>
+                                            <th className="text-left font-semibold text-gray-700">Price</th>
+                                            <th className="text-left font-semibold text-gray-700">Selected Date</th>
+                                            <th className="text-left font-semibold text-gray-700">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {
-                                            classes.length === 0 ? <tr><td colSpan='5' className='text-center text-2xl font-bold'>No Classes Found</td></tr> : // If there is no item in the cart
+                                            classes.length === 0 ? <tr><td colSpan='5' className='text-center text-2xl font-bold text-gray-600'>No Classes Found</td></tr> : // If there is no item in the cart
                                                 paginatedData.map((item, idx) => {
                                                     const letIdx = (page - 1) * itemPerPage + idx + 1;
+                                                    
+                                                    // Get the selection date - use selected_at, submitted, or current date
+                                                    const selectionDate = item.selected_at || item.submitted || new Date().toISOString();
+                                                    
                                                     return <tr key={item._id}>
                                                         <td className="py-4">{letIdx}</td>
                                                         <td className="py-4">
                                                             <div className="flex items-center">
-                                                                <img className="h-16 w-16 mr-4" src={item.image} alt="Product image" />
-                                                                <span className={`font-semibold ${item.name.length > 20 ? 'text-[13px]' : 'text-[18px]'} whitespace-pre-wrap`}>{item.name}</span>
+                                                                <img className="h-16 w-16 mr-4 rounded" src={item.image} alt="Product image" />
+                                                                <span className={`font-semibold ${item.name.length > 20 ? 'text-[13px]' : 'text-[18px]'} whitespace-pre-wrap text-gray-700`}>{item.name}</span>
                                                             </div>
                                                         </td>
-                                                        <td className="py-4">${item.price}</td>
+                                                        <td className="py-4 text-teal-600 font-medium">₹{item.price}</td>
                                                         <td className="py-4">
-                                                            <p className='text-green-700 text-sm'>{moment(item.submitted).format('MMMM Do YYYY')}</p>
+                                                            <p className='text-teal-700 text-sm'>{moment(selectionDate).format('MMMM Do YYYY, h:mm a')}</p>
                                                         </td>
                                                         <td className="py-4 flex pt-8 gap-2">
                                                             <motion.button
@@ -149,14 +179,12 @@ const SelectedClass = () => {
                                                             <motion.button
                                                                 whileHover={{ scale: 1.1 }}
                                                                 whileTap={{ scale: 0.9 }}
-                                                                className='px-3 py-1 cursor-pointer bg-green-500 rounded-3xl text-white font-bold flex items-center'
+                                                                className='px-3 py-1 cursor-pointer bg-teal-600 rounded-3xl text-white font-bold flex items-center'
                                                                 onClick={() => handlePay(item._id)}
                                                             >
-                                                                <FiDollarSign className="mr-2" />
+                                                                
                                                                 Pay
                                                             </motion.button>
-
-
                                                         </td>
                                                     </tr>
                                                 })}
@@ -169,32 +197,32 @@ const SelectedClass = () => {
                         </div>
                         <div className="md:w-1/5 fixed right-3">
                             <div className="bg-white rounded-lg shadow-md p-6">
-                                <h2 className="text-lg font-semibold mb-4">Summary</h2>
+                                <h2 className="text-lg font-semibold mb-4 text-gray-700">Summary</h2>
                                 <div className="flex justify-between mb-2">
-                                    <span>Subtotal</span>
-                                    <span>${totalPrice}</span>
+                                    <span className="text-gray-600">Subtotal</span>
+                                    <span className="text-gray-700">₹{totalPrice}</span>
                                 </div>
                                 <div className="flex justify-between mb-2">
-                                    <span>Taxes</span>
-                                    <span>
-                                        ${totalTax.toFixed(2)}
+                                    <span className="text-gray-600">Taxes</span>
+                                    <span className="text-gray-700">
+                                        ₹{totalTax.toFixed(2)}
                                     </span>
                                 </div>
                                 <div className="flex justify-between mb-2">
-                                    <span>Extra Fees</span>
-                                    <span>$0</span>
+                                    <span className="text-gray-600">Extra Fees</span>
+                                    <span className="text-gray-700">₹0</span>
                                 </div>
                                 <hr className="my-2" />
                                 <div className="flex justify-between mb-2">
-                                    <span className="font-semibold">Total</span>
-                                    <span className="font-semibold">${price.toFixed(2)}</span>
+                                    <span className="font-semibold text-gray-700">Total</span>
+                                    <span className="font-semibold text-teal-600">₹{price.toFixed(2)}</span>
                                 </div>
                                 <motion.button
-                                    whileHover={{ scale: 1.1 }}
-                                    whileTap={{ scale: 0.9 }}
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
                                     onClick={() => navigate('/dashboard/user/payment', { state: { price: price, itemId: null } })}
                                     disabled={price <= 0}
-                                    className="bg-secondary text-white py-2 px-4 rounded-lg mt-4 w-full"
+                                    className="bg-teal-600 text-white py-2 px-4 rounded-lg mt-4 w-full hover:bg-teal-700 transition-colors"
                                 >
                                     Checkout
                                 </motion.button>

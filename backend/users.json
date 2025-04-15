@@ -22,5 +22,23 @@
       "phone": "0134567894",
       "about": "",
       "skills": null
-    }
+    },
+    {
+      "name": "Krushnampriya",
+      "email": "krushnampriya@gmail.com",
+      "photoUrl": "https://lh3.googleusercontent.com/a/ACg8ocJbHdtBLXUAfOnav07QIzT1pCJbLh…",
+      "role": "admin",
+      "gender": "Is not specified",
+      "address": "soni bajar , rajkot",
+      "phone": "9173207489"
+  },
+  {
+      "name": "Chandni Adesara",
+      "email": "adesarachandnikalpesh@gmail.com",
+      "photoUrl": "https://lh3.googleusercontent.com/a/ACg8ocJbHdtBLXUAfOnav07QIzT1pCJbLh…",
+      "role": "instructor",
+      "gender": "Is not specified",
+      "address": "soni bajar , rajkot",
+      "phone": "9173207489"
+  }
   ]

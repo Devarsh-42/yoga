@@ -24,7 +24,7 @@ const ManageClasses = () => {
             .catch(err => console.log(err))
     }, [])
 
-    useEffect(()=>{
+    useEffect(() => {
         let lastIndex = page * itemPerPage;
         const firstIndex = lastIndex - itemPerPage;
         if (lastIndex > classes.length) {
@@ -32,16 +32,16 @@ const ManageClasses = () => {
         }
         const currentData = classes.slice(firstIndex, lastIndex);
         setPaginatedData(currentData);
-    },[page,totalPage])
+    }, [page, classes])
 
 
     const theme = createTheme({
         palette: {
             primary: {
-                main: '#ff0000', // Set the primary color
+                main: '#2CB49F', // Set the primary color to teal
             },
             secondary: {
-                main: '#00ff00', // Set the secondary color
+                main: '#FF7550', // Set the secondary color to orange
             },
         },
     });
@@ -64,6 +64,8 @@ const ManageClasses = () => {
             },
             showCancelButton: true,
             confirmButtonText: 'Reject',
+            confirmButtonColor: '#FF7550',
+            cancelButtonColor: '#6c757d',
             showLoaderOnConfirm: true,
             preConfirm: async (text) => {
                 try {
@@ -82,18 +84,19 @@ const ManageClasses = () => {
             allowOutsideClick: () => !Swal.isLoading()
         }).then((result) => {
             if (result.isConfirmed) {
-                Swal.fire(
-                    'Changed..!',
-                    'You reject this class.',
-                    'success'
-                )
+                Swal.fire({
+                    title: 'Changed..!',
+                    text: 'You reject this class.',
+                    icon: 'success',
+                    confirmButtonColor: '#2CB49F'
+                })
             }
         })
     }
     const handleChange = (event, value) => setPage(value);
     return (
         <div>
-            <h1 className='text-4xl text-secondary font-bold text-center my-10'>Manage <span className='text-black'>Classes</span></h1>
+            <h1 className='text-4xl text-teal-600 font-bold text-center my-10'>Manage <span className='text-gray-800'>Classes</span></h1>
 
 
             <div className="">
@@ -101,37 +104,37 @@ const ManageClasses = () => {
                 <div className="flex flex-col">
                     <div className="overflow-x-auto sm:-mx-6 lg:-mx-8">
                         <div className="inline-block min-w-full py-2 sm:px-6 lg:px-8">
-                            <div className="overflow-hidden">
+                            <div className="overflow-hidden shadow-md rounded-lg">
                                 <table className="min-w-full text-left text-sm font-light">
-                                    <thead className="border-b font-medium dark:border-neutral-500">
+                                    <thead className="bg-teal-50 font-medium border-b">
                                         <tr>
-                                            <th scope="col" className="px-6 py-4">PHOTO</th>
-                                            <th scope="col" className="px-6 py-4">COURSE NAME</th>
-                                            <th scope="col" className="px-6 py-4">INSTRUCTOR NAME</th>
-                                            <th scope="col" className="px-6 py-4">STATUS</th>
-                                            <th scope="col" className="px-6 py-4">DETAILS</th>
+                                            <th scope="col" className="px-6 py-4 text-gray-700">PHOTO</th>
+                                            <th scope="col" className="px-6 py-4 text-gray-700">COURSE NAME</th>
+                                            <th scope="col" className="px-6 py-4 text-gray-700">INSTRUCTOR NAME</th>
+                                            <th scope="col" className="px-6 py-4 text-gray-700">STATUS</th>
+                                            <th scope="col" className="px-6 py-4 text-gray-700">DETAILS</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {
-                                            classes.length == 0 ? <tr><td colSpan='6' className='text-center text-2xl font-bold'>No Classes Found</td></tr> :
+                                            classes.length == 0 ? <tr><td colSpan='6' className='text-center text-2xl font-bold py-4'>No Classes Found</td></tr> :
                                                 paginatedData.map((cls, idx) => <tr
                                                     key={cls._id}
-                                                    className="border-b transition duration-300 ease-in-out hover:bg-neutral-100 dark:border-neutral-500 dark:hover:bg-neutral-600">
+                                                    className="border-b transition duration-300 ease-in-out hover:bg-orange-50 dark:border-neutral-500">
                                                     <td className="whitespace-nowrap px-6 py-4">
-                                                        <img src={cls.image} className='h-[35px] w-[35px]' alt="" />
+                                                        <img src={cls.image} className='h-[35px] w-[35px] rounded-md object-cover' alt="" />
                                                     </td>
                                                     <td className="whitespace-pre-wrap px-6 py-4">{cls.name}</td>
                                                     <td className="whitespace-nowrap px-6 py-4">{cls.instructorName}</td>
                                                     <td className="whitespace-nowrap px-6 py-4">
-                                                        <span className={`font-bold ${cls.status === 'pending' ? 'bg-orange-400' : cls.status === 'checking' ? 'bg-yellow-500' : cls.status === 'approved' ? 'bg-green-600' : 'bg-red-600'} px-2 py-1 uppercase text-white rounded-xl`}>{cls.status}</span>
+                                                        <span className={`font-bold ${cls.status === 'pending' ? 'bg-orange-400' : cls.status === 'checking' ? 'bg-yellow-500' : cls.status === 'approved' ? 'bg-teal-600' : 'bg-red-600'} px-2 py-1 uppercase text-white rounded-xl`}>{cls.status}</span>
                                                     </td>
                                                     <td className="whitespace-nowrap px-6 py-4">
                                                         <div className="flex gap-2">
                                                             {
                                                                 <button
                                                                     onClick={() => handleApprove(cls._id)}
-                                                                    className='text-[12px]  cursor-auto disabled:bg-green-700 bg-green-500 py-1 rounded-md px-2 text-white'>
+                                                                    className='text-[12px] cursor-pointer disabled:bg-teal-700 bg-teal-600 py-1 rounded-md px-2 text-white hover:bg-teal-700 transition duration-300'>
                                                                     Approve
                                                                 </button>
                                                             }
@@ -140,7 +143,7 @@ const ManageClasses = () => {
                                                                 <button
                                                                     disabled={cls.status === 'rejected' || cls.status === 'checking'}
                                                                     onClick={() => handelReject(cls._id)}
-                                                                    className=' cursor-pointer disabled:bg-red-800 bg-red-600 py-1 rounded-md px-2 text-white'>
+                                                                    className='cursor-pointer disabled:bg-red-800 bg-red-600 py-1 rounded-md px-2 text-white hover:bg-red-700 transition duration-300'>
                                                                     Deny
                                                                 </button>
                                                             }
@@ -149,18 +152,14 @@ const ManageClasses = () => {
                                                                 <button
                                                                     disabled={cls.status === 'rejected' || cls.status === 'checking'}
                                                                     onClick={() => handelReject(cls._id)}
-                                                                    className=' cursor-pointer bg-red-600 py-1 rounded-md px-2 text-white'>
+                                                                    className='cursor-pointer bg-orange-500 py-1 rounded-md px-2 text-white hover:bg-orange-600 transition duration-300'>
                                                                     Feedback
                                                                 </button>
                                                             }
-
-
                                                         </div>
                                                     </td>
-
                                                 </tr>)
                                         }
-
                                     </tbody>
                                 </table>
                             </div>
