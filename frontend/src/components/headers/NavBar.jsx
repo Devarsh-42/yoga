@@ -1,9 +1,9 @@
 // import React, { useContext, useEffect, useState } from 'react';
 // import { motion, AnimatePresence } from 'framer-motion';
-// import { FaBars } from 'react-icons/fa';
-// import { FcElectricalSensor } from 'react-icons/fc';
+// import { FaBars, FaShoppingCart, FaUser } from 'react-icons/fa';
 // import Swal from 'sweetalert2';
 // import Switch from '@mui/material/Switch';
+// import { Tooltip } from '@mui/material';
 // import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 // import { AuthContext } from '../../utilities/providers/AuthProvider';
 // import { createTheme, ThemeProvider, styled } from '@mui/material/styles';
@@ -13,18 +13,30 @@
 //         route: '/'
 //     },
 //     {
-//         name: 'Instructors',
-//         route: '/instructors'
+//         name: 'About',
+//         route: '/about'
 //     },
 //     {
-//         name: 'Classes',
+//         name: 'Yoga Classes',
 //         route: '/classes'
+//     },
+//     {
+//         name: 'Herbal Store',
+//         route: '/herbalstore'
+//     },
+//     {
+//         name: 'Therapies',
+//         route: '/therapies'
+//     },
+//     {
+//         name: 'Contact Us',
+//         route: '/contact'
 //     }
 // ];
 // const theme = createTheme({
 //     palette: {
 //         primary: {
-//             main: '#ff0000', // Set the primary color
+//             main: '#0d9488', // Set the primary color
 //         },
 //         secondary: {
 //             main: '#00ff00', // Set the secondary color
@@ -135,8 +147,11 @@
 //                     {/* Logo */}
 //                     <div onClick={() => navigate('/')} className="flex-shrink-0 cursor-pointer pl-7 md:p-0 flex items-center">
 //                         <div className={``}>
-//                             <h1 className='text-2xl font-Cinzel  inline-flex gap-3  items-center font-bold'>YogaMaster <img src="/yoga-logo.png" alt="" className='w-8 h-8' /></h1>
-//                             <p className='font-bold text-[13px]  tracking-[8px]'>Quick Explore</p>
+//                             <h1 className='text-2xl font-Cinzel  inline-flex gap-3  items-center font-bold'>
+//                             <img src="/src/assets/navbar/yoga-logo.png" alt="" className='w-13 h-11' />
+//                                 Krushnapriya Yog 
+//                                 </h1>
+//                             {/* <p className='font-bold text-[13px]  tracking-[8px]'>Quick Explore</p> */}
 //                         </div>
 //                     </div>
 
@@ -158,7 +173,7 @@
 //                                 {navLinks.map((link) => (
 //                                     <li key={link.route}>
 //                                         <NavLink
-//                                             className={({ isActive }) => `font-bold ${isActive ? 'text-secondary' : `${navBg.includes('bg-transparent') ? 'text-white' : 'text-black dark:text-white'}`} hover:text-secondary duration-300`}
+//                                             className={({ isActive }) => `px-4 py-2 rounded-full transition-all font-semibold ${isActive ? 'text-secondary' : `${navBg.includes('bg-transparent') ? 'text-white' : 'text-black dark:text-white'}`} hover:text-secondary duration-300`}
 //                                             to={link.route}
 //                                             style={{ whiteSpace: 'nowrap' }}
 //                                         >
@@ -168,6 +183,7 @@
 
 //                                     </li>
 //                                 ))}
+                                
 //                                 {
 //                                     user ? null : isLogin ? <li>
 //                                         <NavLink
@@ -269,6 +285,7 @@ import { Tooltip } from '@mui/material';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../utilities/providers/AuthProvider';
 import { createTheme, ThemeProvider, styled } from '@mui/material/styles';
+
 const navLinks = [
     {
         name: 'Home',
@@ -295,13 +312,14 @@ const navLinks = [
         route: '/contact'
     }
 ];
+
 const theme = createTheme({
     palette: {
         primary: {
-            main: '#ff0000', // Set the primary color
+            main: '#0d9488', // Teal color
         },
         secondary: {
-            main: '#00ff00', // Set the secondary color
+            main: '#f4811f', // Orange color to match UI
         },
     },
 });
@@ -321,6 +339,7 @@ const NavBar = () => {
     const toggleMobileMenu = () => {
         setIsMobileMenuOpen(!isMobileMenuOpen);
     };
+    
     const handelLogout = e => {
         e.preventDefault();
         Swal.fire({
@@ -328,8 +347,8 @@ const NavBar = () => {
             text: "You won't be able to revert this!",
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
+            confirmButtonColor: '#0d9488', // Changed to teal
+            cancelButtonColor: '#f4811f', // Changed to orange
             confirmButtonText: 'Yes, Logout.!'
         }).then((result) => {
             if (result.isConfirmed) {
@@ -352,7 +371,6 @@ const NavBar = () => {
         })
     }
 
-
     useEffect(() => {
         const darkClass = 'dark';
         const root = window.document.documentElement;
@@ -363,6 +381,7 @@ const NavBar = () => {
             root.classList.remove(darkClass);
         }
     }, [isDarkMode]);
+    
     useEffect(() => {
         setIsHome(location.pathname === '/');
         setIsLogin(location.pathname === '/login');
@@ -390,12 +409,9 @@ const NavBar = () => {
                 setNavBg('bg-white dark:bg-black dark:text-white text-black');
             }
         } else {
-            // setNavBg(`dark:text-white ${isHome ? 'text-white bg-transparent' : 'text-black dark:text-white dark:bg-black'}`);
             setNavBg(`${isHome || location.pathname === '/' ? 'bg-transparent' : 'bg-white dark:bg-black'} dark:text-white text-white`);
-
         }
     }, [scrollPosition]);
-
 
     return (
         <motion.nav
@@ -409,11 +425,10 @@ const NavBar = () => {
                     {/* Logo */}
                     <div onClick={() => navigate('/')} className="flex-shrink-0 cursor-pointer pl-7 md:p-0 flex items-center">
                         <div className={``}>
-                            <h1 className='text-2xl font-Cinzel  inline-flex gap-3  items-center font-bold'>
-                            <img src="/src/assets/navbar/yoga-logo.png" alt="" className='w-13 h-11' />
+                            <h1 className='text-2xl font-Cinzel inline-flex gap-3 items-center font-bold'>
+                                <img src="/src/assets/navbar/yoga-logo.png" alt="" className='w-13 h-11' />
                                 Krushnapriya Yog 
-                                </h1>
-                            {/* <p className='font-bold text-[13px]  tracking-[8px]'>Quick Explore</p> */}
+                            </h1>
                         </div>
                     </div>
 
@@ -422,27 +437,25 @@ const NavBar = () => {
                         <button
                             onClick={toggleMobileMenu}
                             type="button"
-                            className="text-gray-300 hover:text-white focus:outline-none"
+                            className="text-gray-300 hover:text-teal-500 focus:outline-none"
                         >
-                            <FaBars className="h-6  hover:text-primary w-6" />
+                            <FaBars className="h-6 hover:text-teal-500 w-6" />
                         </button>
                     </div>
 
                     {/* Navigation Links */}
-                    <div className="hidden  text-black dark:text-white md:block">
+                    <div className="hidden text-black dark:text-white md:block">
                         <div className="flex">
                             <ul className="ml-10 flex items-center space-x-4 pr-4">
                                 {navLinks.map((link) => (
                                     <li key={link.route}>
                                         <NavLink
-                                            className={({ isActive }) => `px-4 py-2 rounded-full transition-all font-semibold ${isActive ? 'text-secondary' : `${navBg.includes('bg-transparent') ? 'text-white' : 'text-black dark:text-white'}`} hover:text-secondary duration-300`}
+                                            className={({ isActive }) => `px-4 py-2 rounded-full transition-all font-semibold ${isActive ? 'text-teal-500' : `${navBg.includes('bg-transparent') ? 'text-white' : 'text-black dark:text-white'}`} hover:text-teal-500 duration-300`}
                                             to={link.route}
                                             style={{ whiteSpace: 'nowrap' }}
                                         >
                                             {link.name}
                                         </NavLink>
-
-
                                     </li>
                                 ))}
                                 
@@ -450,15 +463,15 @@ const NavBar = () => {
                                     user ? null : isLogin ? <li>
                                         <NavLink
                                             to='/register'
-                                            className={({ isActive }) => `font-bold ${isActive ? 'text-secondary' : `${navBg.includes('bg-transparent') ? 'text-white' : 'text-black dark:text-white'}`} hover:text-secondary duration-300`}
+                                            className={({ isActive }) => `font-bold ${isActive ? 'text-teal-500' : `${navBg.includes('bg-transparent') ? 'text-white' : 'text-black dark:text-white'}`} hover:text-teal-500 duration-300`}
                                         >Register</NavLink></li> : <li>
                                         <NavLink
                                             to='/login'
-                                            className={({ isActive }) => `font-bold ${isActive ? 'text-secondary' : `${navBg.includes('bg-transparent') ? 'text-white' : 'text-black dark:text-white'}`} hover:text-secondary duration-300`}
+                                            className={({ isActive }) => `font-bold ${isActive ? 'text-teal-500' : `${navBg.includes('bg-transparent') ? 'text-white' : 'text-black dark:text-white'}`} hover:text-teal-500 duration-300`}
                                         >Login</NavLink></li>
                                 }
                                 {
-                                    user && <li><NavLink to='/dashboard' className={({ isActive }) => `font-bold ${isActive ? 'text-secondary' : `${navBg.includes('bg-transparent') ? 'text-white' : 'text-black dark:text-white'}`} hover:text-secondary duration-300`}>Dashboard</NavLink></li>
+                                    user && <li><NavLink to='/dashboard' className={({ isActive }) => `font-bold ${isActive ? 'text-teal-500' : `${navBg.includes('bg-transparent') ? 'text-white' : 'text-black dark:text-white'}`} hover:text-teal-500 duration-300`}>Dashboard</NavLink></li>
                                 }
                                 {
                                     user && <li>
@@ -466,7 +479,7 @@ const NavBar = () => {
                                     </li>
                                 }
                                 {
-                                    user && <li><NavLink className='font-bold px-3 py-2 bg-secondary text-white rounded-xl' onClick={handelLogout}>Logout</NavLink></li>
+                                    user && <li><NavLink className='font-bold px-3 py-2 bg-orange-500 text-white rounded-xl hover:bg-teal-500 transition-all duration-300' onClick={handelLogout}>Logout</NavLink></li>
                                 }
                                 <li>
                                     <ThemeProvider theme={theme}>
@@ -477,7 +490,6 @@ const NavBar = () => {
                                     </ThemeProvider>
                                 </li>
                             </ul>
-
                         </div>
                     </div>
                 </div>
@@ -492,43 +504,44 @@ const NavBar = () => {
                             exit={{ opacity: 0, height: 0 }}
                             transition={{ duration: 0.5 }}
                         >
-                            {navLinks.map((link) => (
-                                <li key={link.route}>
-                                    <NavLink
-                                        className={({ isActive }) => `font-bold ${isActive ? 'text-secondary' : `${navBg.includes('bg-transparent') ? 'text-white' : 'text-black dark:text-white'}`} hover:text-secondary duration-300`}
-                                        to={link.route}
-                                        style={{ whiteSpace: 'nowrap' }}
-                                    >
-                                        {link.name}
-                                    </NavLink>
-
-
-                                </li>
-                            ))}
-                            {
-                                user ? null : isLogin ? <li>
-                                    <NavLink
-                                        to='/register'
-                                        className={({ isActive }) => `font-bold ${isActive ? 'text-secondary' : `${navBg.includes('bg-transparent') ? 'text-white' : 'text-black dark:text-white'}`} hover:text-secondary duration-300`}
-                                    >Register</NavLink></li> : <li>
-                                    <NavLink
-                                        to='/login'
-                                        className={({ isActive }) => `font-bold ${isActive ? 'text-secondary' : `${navBg.includes('bg-transparent') ? 'text-white' : 'text-black dark:text-white'}`} hover:text-secondary duration-300`}
-                                    >Login</NavLink></li>
-                            }
-                            {
-                                user && <li><NavLink to='/dashboard' className={({ isActive }) => `font-bold ${isActive ? 'text-secondary' : `${navBg.includes('bg-transparent') ? 'text-white' : 'text-black dark:text-white'}`} hover:text-secondary duration-300`}>Dashboard</NavLink></li>
-                            }
-                            {
-                                user && <li>
-                                    <img src={user?.photoURL} className='h-[40px] rounded-full w-[40px]' alt="" />
-                                </li>
-                            }
-                            {
-                                user && <li><NavLink className='font-bold px-3 py-2 bg-secondary text-white rounded-xl' onClick={handelLogout}>Logout</NavLink></li>
-                            }
-
-                            {/* Add more mobile menu links as needed */}
+                            <ul className="px-4 py-2 space-y-2">
+                                {navLinks.map((link) => (
+                                    <li key={link.route}>
+                                        <NavLink
+                                            className={({ isActive }) => `block py-2 font-bold ${isActive ? 'text-teal-500' : 'text-white'} hover:text-teal-500 duration-300`}
+                                            to={link.route}
+                                            onClick={toggleMobileMenu}
+                                        >
+                                            {link.name}
+                                        </NavLink>
+                                    </li>
+                                ))}
+                                
+                                {
+                                    user ? null : isLogin ? <li>
+                                        <NavLink
+                                            to='/register'
+                                            className={({ isActive }) => `block py-2 font-bold ${isActive ? 'text-teal-500' : 'text-white'} hover:text-teal-500 duration-300`}
+                                            onClick={toggleMobileMenu}
+                                        >Register</NavLink></li> : <li>
+                                        <NavLink
+                                            to='/login'
+                                            className={({ isActive }) => `block py-2 font-bold ${isActive ? 'text-teal-500' : 'text-white'} hover:text-teal-500 duration-300`}
+                                            onClick={toggleMobileMenu}
+                                        >Login</NavLink></li>
+                                }
+                                {
+                                    user && <li><NavLink to='/dashboard' className={({ isActive }) => `block py-2 font-bold ${isActive ? 'text-teal-500' : 'text-white'} hover:text-teal-500 duration-300`} onClick={toggleMobileMenu}>Dashboard</NavLink></li>
+                                }
+                                {
+                                    user && <li className="py-2">
+                                        <img src={user?.photoURL} className='h-[40px] rounded-full w-[40px]' alt="" />
+                                    </li>
+                                }
+                                {
+                                    user && <li className="py-2"><NavLink className='font-bold px-3 py-2 bg-orange-500 text-white rounded-xl hover:bg-teal-500 transition-all duration-300' onClick={(e) => {handelLogout(e); toggleMobileMenu();}}>Logout</NavLink></li>
+                                }
+                            </ul>
                         </motion.div>
                     )}
                 </AnimatePresence>
