@@ -1,8 +1,7 @@
-// export default HeroContainer;
-import React, { useState, useEffect } from 'react';
+import React, { useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { EffectCreative, Navigation, Pagination, Autoplay } from "swiper";
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 // Import Swiper styles
 import "swiper/css";
@@ -10,14 +9,14 @@ import "swiper/css/effect-creative";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 
-import Hero from './Hero';
-import Hero2 from './Hero2';
-import Hero3 from './Hero3';
+import Hero from "./Hero";
+import Hero2 from "./Hero2";
+import Hero3 from "./Hero3";
 
 const HeroContainer = () => {
   const [swiper, setSwiper] = useState(null);
   const [activeIndex, setActiveIndex] = useState(0);
-  
+
   return (
     <section className="relative w-full h-screen overflow-hidden">
       <Swiper
@@ -38,8 +37,8 @@ const HeroContainer = () => {
         loop={true}
         speed={800}
         autoplay={{
-          delay: 5000,
-          disableOnInteraction: false
+          delay: 4000,
+          disableOnInteraction: false,
         }}
         onSwiper={setSwiper}
         onSlideChange={(swiper) => setActiveIndex(swiper.realIndex)}
@@ -51,39 +50,39 @@ const HeroContainer = () => {
           <Hero2 />
         </SwiperSlide>
         <SwiperSlide>
-          <Hero3/>
+          <Hero3 />
         </SwiperSlide>
       </Swiper>
 
-      {/* Custom navigation controls */}
-      <div className="absolute inset-x-0 top-1/2 transform -translate-y-1/2 flex justify-between px-4 pointer-events-none">
-        <button 
+      {/* Custom navigation arrows - always visible
+      <div className="absolute inset-x-0 top-1/2 transform -translate-y-1/2 flex justify-between px-2 z-5">
+        <button
           onClick={() => swiper?.slidePrev()}
-          className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center transition-all hover:bg-white/30 pointer-events-auto focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-lg"
+          className="focus:outline-none"
           aria-label="Previous slide"
         >
-          <ChevronLeft className="w-6 h-6 text-white" />
+          <ChevronLeft className="w-8 h-8 text-white" />
         </button>
-        
-        <button 
+
+        <button
           onClick={() => swiper?.slideNext()}
-          className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center transition-all hover:bg-white/30 pointer-events-auto focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-lg"
+          className="focus:outline-none"
           aria-label="Next slide"
         >
-          <ChevronRight className="w-6 h-6 text-white" />
+          <ChevronRight className="w-8 h-8 text-white" />
         </button>
-      </div>
-      
-      {/* Slide indicators */}
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex space-x-2">
-        {[0, 1].map((index) => (
+      </div> */}
+
+      {/* Slide indicators - fixed to show all three slides */}
+      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10">
+        {[0, 1, 2].map((index) => (
           <button
             key={index}
             onClick={() => swiper?.slideTo(index)}
-            className={`w-2 h-2 rounded-full transition-all focus:outline-none ${
-              activeIndex === index 
-                ? "w-8 bg-blue-500" 
-                : "bg-white/50 hover:bg-white/70"
+            className={`h-2 rounded-full transition-all focus:outline-none ${
+              activeIndex === index
+                ? "w-8 bg-blue-500"
+                : "w-2 bg-white/50 hover:bg-white/70"
             }`}
             aria-label={`Go to slide ${index + 1}`}
           />
