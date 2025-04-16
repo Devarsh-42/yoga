@@ -16,7 +16,7 @@ const Therapy = () => {
     <div className="md:w-[80%] mx-auto my-20">
       <div className="mb-16">
         <h1 className="text-5xl font-bold text-center dark:text-white">
-          Our <span className="text-green-600">Therapy</span> Services
+          Our <span className="text-blue-600">Therapy</span> Services
         </h1>
         <div className="w-[75%] text-center mx-auto my-4">
           <p className="text-gray-500 dark:text-gray-300">
@@ -39,11 +39,11 @@ const Therapy = () => {
                 {item.description?.slice(0, 100)}...
               </p>
               <div className="flex items-center justify-between mb-4">
-                <span className="text-green-600 font-bold text-lg">${item.price}</span>
+                <span className="text-blue-600 font-bold text-lg">₹{item.price}</span>
                 <span className="text-sm text-gray-600 dark:text-gray-400">{item.duration} mins</span>
               </div>
               <Link to={`/therapies/${item._id}`} className="block">
-                <button className="w-full py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-md transition-colors duration-300">
+                <button className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-colors duration-300">
                   VIEW DETAILS
                 </button>
               </Link>

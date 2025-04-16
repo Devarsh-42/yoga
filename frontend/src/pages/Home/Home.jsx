@@ -5,6 +5,7 @@ import PopularClasses from './PopularClasses/PopularClasses';
 import HeroContainer from './Hero/HeroContainer';
 import Gallary from './Gallary/Gallary';
 import PopularTherapies from './PopularTherapies/PopularTherapies';
+import HerbalHighlight from './HerbalHighlight/HerbalHighlight';
 
 const Home = () => {
     useTitle('Home | Krushnampriya Yog');
@@ -12,11 +13,11 @@ const Home = () => {
         <section>
             <HeroContainer />
             <div className="max-w-screen-xl mx-auto">
-            <Gallary/>
+            
                 <PopularClasses />
+                <HerbalHighlight/>
                 <PopularTherapies />
             </div>
-            <Map />
         </section>
     );
 };
