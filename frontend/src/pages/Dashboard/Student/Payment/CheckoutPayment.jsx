@@ -1,162 +1,128 @@
 import React, { useEffect, useState } from 'react';
-import { CardElement, useElements, useStripe } from '@stripe/react-stripe-js';
+import { Navigate } from 'react-router-dom';
 import useAxiosSecure from '../../../../hooks/useAxiosSecure';
 import { useUser } from '../../../../hooks/useUser';
-const CheckoutPayment = ({ price , cartItm }) => {
-    const URL =`http://localhost:5000/payment-info?${cartItm&&`classId=${cartItm}`}`
-    console.log(URL)
-    const stripe = useStripe();
-    const elements = useElements();
+
+const CheckoutPayment = ({ price, cartItm }) => {
+    const URL = `/payment-info?${cartItm && `classId=${cartItm}`}`;
     const axiosSecure = useAxiosSecure();
     const { currentUser, isLoading } = useUser();
-    const [clientSecret, setClientSecret] = useState('');
+    const [orderId, setOrderId] = useState('');
     const [succeeded, setSucceeded] = useState('');
     const [message, setMessage] = useState('');
     const [cart, setCart] = useState([]);
+    const [loading, setLoading] = useState(false);
 
-    // Return the amount is less than 0 or not provided
+    // Return if the amount is less than 0 or not provided
     if (price < 0 || !price) {
         return <Navigate to="/dashboard/my-selected" replace />
     }
 
-
-
-
     useEffect(() => {
-        axiosSecure.get(`/cart/${currentUser?.email}`)
-            .then((res) => {
-                // SET CLASSES ID IN STATE
-                const classesId = res.data.map(item => item._id);
-                setCart(classesId)
-            })
-            .catch((err) => {
-                console.log(err)
-            })
-    }, [])
-    useEffect(() => {
-        axiosSecure.post('/create-payment-intent', { price: price })
-            .then(res => {
-                setClientSecret(res.data.clientSecret)
-                console.log(res.data)
-
-            })
-    }, [])
-    const handleSubmit = async (event) => {
-        setMessage('')
-        event.preventDefault();
-        if (!stripe || !elements) {
-            return;
-        }
-        const card = elements.getElement(CardElement);
-        if (card === null) {
-            return;
-        }
-        const { error, paymentMethod } = await stripe.createPaymentMethod({
-            type: 'card',
-            card,
-        });
-        if (error) {
-            console.log('[error]', error);
-            setMessage(error.message)
-        } else {
-            console.log('[PaymentMethod]', paymentMethod);
-        }
-
-        const { paymentIntent, error: confirmError } = await stripe.confirmCardPayment(
-            clientSecret,
-            {
-                payment_method: {
-                    card: card,
-                    billing_details: {
-                        name: currentUser.name || 'Unknown',
-                        email: currentUser.email || 'Anonymous',
-                    },
-                },
-            },
-        );
-        if (confirmError) {
-            console.log('[error]', confirmError);
-            setMessage(confirmError.message)
-        }
-        else {
-            console.log('[PaymentMethod]', paymentIntent);
-
-            // PAYMENT LOGIC HERE WHEN PAYMENT IS SUCCESSFUL
-            if (paymentIntent.status === 'succeeded') {
-                const transactionId = paymentIntent.id;
-                const paymentMethod = paymentIntent.payment_method;
-                const amount = paymentIntent.amount / 100;
-                const currency = paymentIntent.currency;
-                const paymentStatus = paymentIntent.status;
-                const userName = currentUser.name;
-                const userEmail = currentUser.email;
-                const data = {
-                    transactionId,
-                    paymentMethod,
-                    amount,
-                    currency,
-                    paymentStatus,
-                    userName,
-                    userEmail,
-                    classesId : cartItm ? [cartItm] : cart, 
-                    date : new Date()
-                }
-                // axiosSecure.post('/payment-info', data)
-                fetch(URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        authorization: `Bearer ${localStorage.getItem('token')}`
-                    },
-                    body: JSON.stringify(data),
+        // Fetch cart items if cartItm is not provided
+        if (!cartItm) {
+            axiosSecure.get(`/cart/${currentUser?.email}`)
+                .then((res) => {
+                    // SET CLASSES ID IN STATE
+                    const classesId = res.data.map(item => item._id);
+                    setCart(classesId);
                 })
-                    .then(res => res.json())
-                    .then(res => {
-                        console.log(res)
-                        if (res.deletedResult.deletedCount > 0 && res.paymentResult.insertedId && res.updatedResult.modifiedCount > 0) {
-                            setSucceeded('Payment Successful , You can now access your classes')
-                        }
-                        else {
-                            setSucceeded('Payment Failed , Please try again')
-                        }
-                    })
-                    .catch(err => {
-                        console.log(err)
-                    })
-            }
-
-
+                .catch((err) => {
+                    console.log(err);
+                });
         }
-    }
+
+        // Load Razorpay script
+        const script = document.createElement('script');
+        script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+        script.async = true;
+        document.body.appendChild(script);
+
+        return () => {
+            document.body.removeChild(script);
+        };
+    }, [currentUser?.email, cartItm, axiosSecure]);
+
+    const handlePayment = async () => {
+        try {
+            setLoading(true);
+            setMessage('');
+            
+            // Create payment intent/order on your server
+            const { data } = await axiosSecure.post('/create-payment-intent', { price });
+            
+            // Initialize Razorpay payment
+            const options = {
+                key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+                amount: data.amount,
+                currency: data.currency,
+                name: "Your Company Name",
+                description: "Payment for selected courses",
+                order_id: data.orderId,
+                handler: async function(response) {
+                    try {
+                        // Verify payment with your backend
+                        const result = await axiosSecure.post('/verify-payment', {
+                            paymentId: response.razorpay_payment_id,
+                            orderId: response.razorpay_order_id,
+                            signature: response.razorpay_signature,
+                            cartItm: cartItm ? [cartItm] : cart
+                        });
+                        
+                        if (result.data.success) {
+                            setSucceeded('Payment Successful, You can now access your classes');
+                            // Optionally redirect to a success page
+                            // window.location.href = '/dashboard/payment-success';
+                        } else {
+                            setSucceeded('Payment Failed, Please try again');
+                        }
+                    } catch (error) {
+                        console.error(error);
+                        setMessage('Error verifying payment. Please contact support.');
+                    }
+                },
+                prefill: {
+                    name: currentUser.name || 'Unknown',
+                    email: currentUser.email || 'Anonymous',
+                },
+                theme: {
+                    color: "#F37254"
+                }
+            };
+            
+            const razorpayInstance = new window.Razorpay(options);
+            razorpayInstance.on('payment.failed', function (response) {
+                setMessage(`Payment failed: ${response.error.description}`);
+            });
+            
+            razorpayInstance.open();
+        } catch (error) {
+            console.error(error);
+            setMessage('Error initializing payment. Please try again later.');
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
         <>
-            <div className="text-center">
-                <h1 className="text-2xl font-bold">Payment Amount : <span className='text-secondary'>{price}$</span></h1>
+            <div className="text-center mb-8">
+                <h1 className="text-2xl font-bold">Payment Amount: <span className='text-secondary'>₹{price}</span></h1>
+                <p className="mt-2 text-gray-600">Secure payment powered by Razorpay</p>
             </div>
-            <form onSubmit={handleSubmit}>
-                <CardElement
-                    options={{
-                        style: {
-                            base: {
-                                fontSize: '16px',
-                                color: '#424770',
-                                '::placeholder': {
-                                    color: '#aab7c4',
-                                },
-                            },
-                            invalid: {
-                                color: '#9e2146',
-                            },
-                        },
-                    }}
-                />
-                <button type="submit" disabled={!stripe || !clientSecret || isLoading}>
-                    Pay
+            
+            <div className="flex justify-center">
+                <button 
+                    className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg shadow-md disabled:opacity-50"
+                    onClick={handlePayment}
+                    disabled={isLoading || loading}
+                >
+                    {loading ? 'Processing...' : 'Pay Now'}
                 </button>
-                {message && <p className="text-red-500">{message}</p>}
-                {succeeded && <p className="text-green-500">{succeeded}</p>}
-            </form>
+            </div>
+            
+            {message && <p className="mt-4 text-center text-red-500">{message}</p>}
+            {succeeded && <p className="mt-4 text-center text-green-500">{succeeded}</p>}
         </>
     );
 };
