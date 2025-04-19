@@ -528,6 +528,159 @@ app.post('/payment-info', verifyJWT, async (req, res) => {
         });
     }
 });
+
+// TRENDING ROUTES
+// Get trending classes based on enrollment count
+app.get('/trending/classes', async (req, res) => {
+    try {
+      // Find classes and sort by totalEnrolled in descending order
+      const trendingClasses = await classesCollection
+        .find({ status: 'approved' })
+        .sort({ totalEnrolled: -1 })
+        .limit(6)
+        .toArray();
+      
+      res.status(200).json(trendingClasses);
+    } catch (error) {
+      console.error('Error fetching trending classes:', error);
+      res.status(500).json({ message: 'Failed to fetch trending classes', error: error.message });
+    }
+  });
+  
+  // Get trending instructors based on student count and classes
+  app.get('/trending/instructors', async (req, res) => {
+    try {
+      // First get instructors
+      const instructors = await userCollection
+        .find({ role: 'instructor' })
+        .toArray();
+      
+      // For each instructor, calculate their popularity metrics
+      const instructorPromises = instructors.map(async (instructor) => {
+        // Get classes by this instructor
+        const instructorClasses = await classesCollection
+          .find({ instructorEmail: instructor.email })
+          .toArray();
+        
+        // Calculate total students enrolled in this instructor's classes
+        const classIds = instructorClasses.map(cls => cls._id);
+        
+        let totalStudents = 0;
+        if (classIds.length > 0) {
+          // Get all enrolled records that contain any of this instructor's classes
+          const enrollments = await enrolledCollection.find({
+            'classesId': { $elemMatch: { $in: classIds } }
+          }).toArray();
+          
+          totalStudents = enrollments.length;
+        }
+        
+        return {
+          ...instructor,
+          totalClasses: instructorClasses.length,
+          totalStudents: totalStudents,
+          // Calculate popularity score based on student count and class count
+          popularityScore: (totalStudents * 3) + (instructorClasses.length * 1)
+        };
+      });
+      
+      // Resolve all instructor promises
+      const instructorsWithMetrics = await Promise.all(instructorPromises);
+      
+      // Sort by popularity score and return top 8
+      const trendingInstructors = instructorsWithMetrics
+        .sort((a, b) => b.popularityScore - a.popularityScore)
+        .slice(0, 8);
+      
+      res.status(200).json(trendingInstructors);
+    } catch (error) {
+      console.error('Error fetching trending instructors:', error);
+      res.status(500).json({ message: 'Failed to fetch trending instructors', error: error.message });
+    }
+  });
+  
+  // Get trending herbal products
+  app.get('/trending/herbals', async (req, res) => {
+    try {
+      // Get all herbal products
+      const herbalProducts = await herbalProductsCollection.find({}).toArray();
+      
+      // For each product, calculate how many times it was purchased
+      const herbalPromises = herbalProducts.map(async (product) => {
+        // Count occurrences in cart
+        const cartCount = await cartCollection.countDocuments({
+          itemType: 'herbal',
+          itemId: product._id.toString()
+        });
+        
+        // Count occurrences in payments (actual purchases)
+        const paymentCount = await paymentCollection.countDocuments({
+          'items.itemType': 'herbal',
+          'items.itemId': product._id.toString()
+        });
+        
+        // Calculate popularity score (purchases are weighted more than cart additions)
+        const soldCount = paymentCount;
+        const popularityScore = (paymentCount * 5) + (cartCount * 1);
+        
+        return {
+          ...product,
+          soldCount,
+          popularityScore
+        };
+      });
+      
+      // Resolve all herbal promises
+      const herbalsWithMetrics = await Promise.all(herbalPromises);
+      
+      // Sort by popularity score and return top 8
+      const trendingHerbals = herbalsWithMetrics
+        .sort((a, b) => b.popularityScore - a.popularityScore)
+        .slice(0, 8);
+      
+      res.status(200).json(trendingHerbals);
+    } catch (error) {
+      console.error('Error fetching trending herbals:', error);
+      res.status(500).json({ message: 'Failed to fetch trending herbal products', error: error.message });
+    }
+  });
+  
+  // Get trending therapy services
+  app.get('/trending/therapies', async (req, res) => {
+    try {
+      // Get all therapy services
+      const therapyServices = await therapyCollection.find({}).toArray();
+      
+      // For each therapy, calculate booking count
+      const therapyPromises = therapyServices.map(async (therapy) => {
+        // Count bookings in payments
+        const bookingCount = await paymentCollection.countDocuments({
+          'items.itemType': 'therapy',
+          'items.itemId': therapy._id.toString()
+        });
+        
+        return {
+          ...therapy,
+          bookingCount,
+          popularityScore: bookingCount
+        };
+      });
+      
+      // Resolve all therapy promises
+      const therapiesWithMetrics = await Promise.all(therapyPromises);
+      
+      // Sort by booking count and return top 6
+      const trendingTherapies = therapiesWithMetrics
+        .sort((a, b) => b.popularityScore - a.popularityScore)
+        .slice(0, 6);
+      
+      res.status(200).json(trendingTherapies);
+    } catch (error) {
+      console.error('Error fetching trending therapies:', error);
+      res.status(500).json({ message: 'Failed to fetch trending therapy services', error: error.message });
+    }
+  });
+
 app.post('/verify-payment', verifyJWT, async (req, res) => {
     try {
         const { paymentId, orderId, signature, cartItm } = req.body;

@@ -33,6 +33,7 @@ import Therapy from "../pages/therapy/Therapy";
 import ContactUs from "../pages/contact/contactUs";
 import SingleTherapy from "../pages/therapy/SingleTherapy"
 import SingleHerbal from "../pages/herbalstore/SingleHerbal";
+import TrendingPage from "../pages/Dashboard/Student/Trending/trending";
 
 export const router = createBrowserRouter([
     {
@@ -71,6 +72,10 @@ export const router = createBrowserRouter([
             {
                 path: "contact",
                 element: <ContactUs />
+            },
+            {
+                path: "/trending",
+                element: <TrendingPage />
             },
             {
                 path: "class/:id",
