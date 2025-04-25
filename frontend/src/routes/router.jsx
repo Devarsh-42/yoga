@@ -30,7 +30,7 @@ import SingleClass from "../pages/classes/SingleClass";
 import About from "../pages/about/about";
 import HerbalStore from "../pages/herbalstore/HerbalStore";
 import Therapy from "../pages/therapy/Therapy";
-import ContactUs from "../pages/contact/contactUs";
+import ContactUs from "../pages/contact/ContactUs";
 import SingleTherapy from "../pages/therapy/SingleTherapy"
 import SingleHerbal from "../pages/herbalstore/SingleHerbal";
 import TrendingPage from "../pages/Dashboard/Student/Trending/trending";
