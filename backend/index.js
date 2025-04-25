@@ -6,51 +6,62 @@ const cors = require('cors');
 const port = process.env.PORT || 5000;
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const crypto = require('crypto');
-// razor pay integration:
+
+// Razorpay integration
 const Razorpay = require('razorpay');
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
   key_secret: process.env.RAZORPAY_KEY_SECRET
 });
-// Middleware
-app.use(express.json());
 
-// solving cors related issue
-// Add this to your server.js or index.js
+// ✅ Allowed frontend origin
+const allowedOrigins = ['https://yoga-gold.vercel.app'];
 
+// ✅ CORS middleware — must come *before* any routes
 app.use(cors({
-  origin: 'https://yoga-gold.vercel.app/', // Your frontend URL
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('CORS not allowed from this origin'));
+    }
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  credentials: true
+  credentials: true,
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-// Routes
-// SET TOKEN .
-const verifyJWT = (req, res, next) => {
-    const authorization = req.headers.authorization;
-    if (!authorization) {
-        return res.status(401).send({ error: true, message: 'Unauthorize access' })
-    }
-    const token = authorization?.split(' ')[1]
-    jwt.verify(token, process.env.ACCESS_SECRET, (err, decoded) => {
-        if (err) {
-            return res.status(403).send({ error: true, message: 'forbidden user or token has expired' })
-        }
-        req.decoded = decoded;
-        next()
-    })
-}
+// ✅ Preflight requests handler (important for some platforms like Render)
+app.options('*', cors());
 
-// MONGO DB ROUTES connection. saved data in .env
+// Body parser
+app.use(express.json());
+
+// ✅ JWT verification middleware
+const verifyJWT = (req, res, next) => {
+  const authorization = req.headers.authorization;
+  if (!authorization) {
+    return res.status(401).send({ error: true, message: 'Unauthorized access' });
+  }
+  const token = authorization.split(' ')[1];
+  jwt.verify(token, process.env.ACCESS_SECRET, (err, decoded) => {
+    if (err) {
+      return res.status(403).send({ error: true, message: 'Forbidden or token expired' });
+    }
+    req.decoded = decoded;
+    next();
+  });
+};
+
+// ✅ MongoDB connection
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@krushnampriya-yog.31aeypu.mongodb.net/?retryWrites=true&w=majority&appName=krushnampriya-yog`;
 
-// Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
-    serverApi: {
-        version: ServerApiVersion.v1,
-        strict: true,
-        deprecationErrors: true,
-    }
+  serverApi: {
+    version: ServerApiVersion.v1,
+    strict: true,
+    deprecationErrors: true
+  }
 });
 
 async function run() {
@@ -933,13 +944,13 @@ app.post('/verify-payment', verifyJWT, async (req, res) => {
 run().catch(console.dir);
 
 
+// ✅ Test endpoint
 app.get('/', (req, res) => {
-    res.send('Welcome to Krushnampriya yog ,its just backend server :)');
-})
+  res.send('Welcome to Krushnampriya Yog — this is the backend server 🚀');
+});
 
-
-// Listen
+// ✅ Start server
 app.listen(port, () => {
-    console.log(`Server is running on port  ${port}`);
-})
+  console.log(`Server is running on port ${port}`);
+});
 
