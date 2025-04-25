@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import './Payment.css';
+const BACKEND_URL = import.meta.env.VITE_REACT_APP_BACKEND_URL;
 
 const Payment = () => {
     const location = useLocation();
@@ -32,7 +33,7 @@ const Payment = () => {
             
             // Get order details from your backend
             const { data } = await axios.post(
-                'http://localhost:5000/create-payment-intent', 
+                `${BACKEND_URL}/create-payment-intent`, 
                 {
                     price: price // Match the backend expected parameter name
                 },
@@ -58,7 +59,7 @@ const Payment = () => {
                         
                         // Verify payment with your backend (fixed URL typo)
                         const verifyResponse = await axios.post(
-                            `http://localhost:5000/verify-payment`, 
+                            `${BACKEND_URL}/verify-payment`, 
                             {
                                 paymentId: response.razorpay_payment_id,
                                 orderId: response.razorpay_order_id,

@@ -1,9 +1,10 @@
 import { useEffect } from 'react';
 import axios from 'axios';
+const BACKEND_URL = import.meta.env.VITE_REACT_APP_BACKEND_URL;
 
 const useAxiosFetch = () => {
   const axiosInstance = axios.create({
-    baseURL: 'http://localhost:5000', // TODO : Replace with base URL
+    baseURL: `${BACKEND_URL}`, // TODO : Replace with base URL
   });
 
   useEffect(() => {

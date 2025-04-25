@@ -2,9 +2,10 @@ import { useContext, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../utilities/providers/AuthProvider';
+const BACKEND_URL = import.meta.env.VITE_REACT_APP_BACKEND_URL;
 
 const axiosSecure = axios.create({
-  baseURL: 'http://localhost:5000',
+  baseURL: `${BACKEND_URL}`,
 });
 
 const useAxiosSecure = () => {

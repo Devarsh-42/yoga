@@ -34,6 +34,7 @@ import ContactUs from "../pages/contact/ContactUs";
 import SingleTherapy from "../pages/therapy/SingleTherapy"
 import SingleHerbal from "../pages/herbalstore/SingleHerbal";
 import TrendingPage from "../pages/Dashboard/Student/Trending/trending";
+const BACKEND_URL = import.meta.env.VITE_REACT_APP_BACKEND_URL;
 
 export const router = createBrowserRouter([
     {
@@ -80,17 +81,17 @@ export const router = createBrowserRouter([
             {
                 path: "class/:id",
                 element: <SingleClass/>,
-                loader: ({ params }) => fetch(`http://localhost:5000/class/${params.id}`),
+                loader: ({ params }) => fetch(`${BACKEND_URL}/class/${params.id}`),
             },
             {
                 path: "therapies/:id",
                 element: <SingleTherapy />, // create this component to show therapy details
-                loader: ({ params }) => fetch(`http://localhost:5000/therapies/${params.id}`)},
+                loader: ({ params }) => fetch(`${BACKEND_URL}/therapies/${params.id}`)},
                 {
                     path: "herbal_products/:id",
                     element: <SingleHerbal />,
                     loader: ({ params }) =>
-                      fetch(`http://localhost:5000/herbal_products/${params.id}`), // 👈 loader
+                      fetch(`${BACKEND_URL}/herbal_products/${params.id}`), // 👈 loader
                   }
               
         ]
@@ -112,7 +113,7 @@ export const router = createBrowserRouter([
             {
                 path: 'update-user/:id',
                 element: <AdminRoute><UpdateUser /></AdminRoute>,
-                loader: ({ params }) => fetch(`http://localhost:5000/users/${params.id}`),
+                loader: ({ params }) => fetch(`${BACKEND_URL}/users/${params.id}`),
             },
             {
                 path: 'admin-home',
@@ -138,7 +139,7 @@ export const router = createBrowserRouter([
             {
                 path: 'update/:id',
                 element: <InstructorRoute><UpdateClass /></InstructorRoute>,
-                loader: ({ params }) => fetch(`http://localhost:5000/class/${params.id}`),
+                loader: ({ params }) => fetch(`${BACKEND_URL}/class/${params.id}`),
             },
             // * STUDENT ROUTES
             {

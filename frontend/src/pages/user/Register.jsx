@@ -8,6 +8,7 @@ import { toast } from 'react-toastify';
 import { AiOutlineUser, AiOutlineMail, AiOutlineLock, AiOutlinePhone, AiOutlinePicture } from 'react-icons/ai';
 import { HiOutlineLocationMarker } from 'react-icons/hi';
 import GoogleLogin from '../../components/Social/GoogleLogin';
+const BACKEND_URL = import.meta.env.VITE_REACT_APP_BACKEND_URL;
 
 const Register = () => {
     useTitle('Register | Yoga Master - Unleashed Your Inner Self');
@@ -40,7 +41,7 @@ const Register = () => {
 
                             if (user.email && user.displayName) {
                                 return axios
-                                    .post('http://localhost:5000/new-user', userImp)
+                                    .post(`${BACKEND_URL}/new-user`, userImp)
                                     .then(() => {
                                         navigate('/');
                                         return 'Registration successful!';

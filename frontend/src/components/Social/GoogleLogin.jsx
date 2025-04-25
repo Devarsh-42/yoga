@@ -3,6 +3,8 @@ import { useAuth } from '../../hooks/useAuth';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
+const BACKEND_URL = import.meta.env.VITE_REACT_APP_BACKEND_URL;
+
 const GoogleLogin = () => {
     const { googleLogin } = useAuth()
     const navigate = useNavigate();
@@ -23,7 +25,7 @@ const GoogleLogin = () => {
                     };
 
                     if (user.email && user.displayName) {
-                        return axios.post('http://localhost:5000/new-user', userImp)
+                        return axios.post(`${BACKEND_URL}/new-user`, userImp)
                             .then(() => {
                                 navigate('/');
                                 return 'Registration successful!';
