@@ -20,7 +20,7 @@ app.use(express.json());
 // Add this to your server.js or index.js
 
 app.use(cors({
-  origin: 'https://yoga-2ax5.onrender.com', // Your frontend URL
+  origin: 'https://yoga-gold.vercel.app/', // Your frontend URL
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true
 }));
